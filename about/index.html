@@ -206,77 +206,116 @@
     
     <div class="content" v-pre>
         <h3 id="Hi-there-👋"><a href="#Hi-there-👋" class="headerlink" title="Hi there 👋"></a>Hi there 👋</h3><blockquote>
-<p>一名正在学习的开发者，很高兴认识你。</p>
+<p>一名正在学习的开发者，目前在西北工业大学自动化学院读研究生，很高兴认识你。</p>
 </blockquote>
 <hr>
-<h3 id="💡-语言-Languages"><a href="#💡-语言-Languages" class="headerlink" title="💡 语言 (Languages)"></a>💡 语言 (Languages)</h3><div class="skill-container">
-    <span><i class="fab fa-python"></i> Python</span>
-    <span><i class="fa-brands fa-vuejs"></i> Vue(入门)</span>
-    </div>
+<h2 class="custom-h2"><span class="custom-icon">💡</span> 语言 (Languages)</h2>
+<ul class="custom-ul">
+    <li><span class="emoji" data-emoji="snake">🐍</span> Python</li>
+    <li><span class="emoji" data-emoji="lightning">⚡</span> Vue</li>
+    </ul>
 
-<h3 id="🛰️-帐号-Contact"><a href="#🛰️-帐号-Contact" class="headerlink" title="🛰️ 帐号 (Contact)"></a>🛰️ 帐号 (Contact)</h3><table>
-  <tr>
-    <td>GitHub</td>
-    <td><a href="https://github.com/zangankang" target="_blank">zangankang</a></td>
-  </tr>
-  <tr>
-    <td>Email</td>
-    <td>ch_zangak@163.com</td>
-  </tr>
-    <tr>
-    <td>QQ</td>
-    <td>2697109174</td>
-  </tr>
-  <tr>
-    <td>Bilibili</td>
-    <td><a href="https://space.bilibili.com/498004710?spm_id_from=333.1007.0.0" target="_blank">我曾吻南风</a></td>
-  </tr>
-
+<h2 class="custom-h2"><span class="custom-icon">🛰️</span> 帐号 (Contact)</h2>
+<table class="custom-table">
+    <thead>
+        <tr>
+            <th>网站</th>
+            <th>帐号</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>GitHub</td>
+            <td><a href="https://github.com/zangankang" target="_blank" rel="noopener noreferrer">zangankang</a></td>
+        </tr>
+        <tr>
+            <td>Email</td>
+            <td><a href="mailto:ch_zangak@163.com">ch_zangak@163.com</a></td>
+        </tr>
+        <tr>
+            <td>QQ</td>
+            <td>2697109174</td>
+        </tr>
+        <tr>
+            <td>Bilibili</td>
+            <td><a href="https://space.bilibili.com/498004710?spm_id_from=333.1007.0.0" target="_blank" rel="noopener noreferrer">我曾吻南风</a></td>
+        </tr>
+        </tbody>
 </table>
-
-<br>
-<br>
-
+        <p>
+          <img
+            src="/images/avatar.jpg"
+            style="border-radius: 50%; width: 50%"
+            alt="avatar"
+          />
+        </p>
 <style>
-/* 语言/技能部分的样式 */
-.skill-container {
-    margin-bottom: 2rem; /* 增加和下方表格的间距 */
+/* --- 自定义标题样式 --- */
+.custom-h2 {
+    font-size: 24px;
+    font-weight: 600;
+    margin-top: 40px;
+    margin-bottom: 20px;
+    border-bottom: 2px solid #f0f0f0;
+    padding-bottom: 10px;
 }
-.skill-container span {
-    /* display: inline-block; 保持在一行显示 */
-    padding: 8px 15px;     /* 增加内边距，让胶囊更大气 */
-    margin: 5px;           /* 增加胶囊之间的间距 */
-    border-radius: 8px;
-    background-color: #eff3f6;
-    border: 1px solid #d0d7de;
-    font-size: 15px;      /* 稍微增大字体 */
-    transition: all 0.2s ease-in-out;
+.custom-icon {
+    margin-right: 12px;
 }
-.skill-container span:hover {
-    transform: translateY(-2px); /* 鼠标悬浮时轻微上浮 */
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+/* --- 自定义语言列表样式 --- */
+.custom-ul {
+    list-style: none;
+    padding-left: 5px;
 }
-.skill-container i {
-    margin-right: 8px;
-    color: #57606a;
+.custom-ul li {
+    font-size: 16px;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
 }
-
-/* 帐号/联系方式表格的样式 */
-table {
-    width: 100%;           /* 让表格宽度撑满容器 */
+.custom-ul li i, .custom-ul li .emoji-icon { /* 同时兼容 FontAwesome 和 Emoji */
+    width: 24px;
+    font-size: 20px;
+    margin-right: 15px;
+    text-align: center;
+    color: #555;
+}
+/* --- 自定义表格样式 --- */
+.custom-table {
+    width: 100%; /* 确保表格宽度撑满容器 */
     border-collapse: collapse;
-    font-size: 16px;      /* 增大表格字体 */
+    font-size: 16px;
+    margin-bottom: 40px;
 }
-td {
-    padding: 15px;        /* 极大地增加单元格内边距，让内容不紧凑 */
-    border: 1px solid #d0d7de;
+.custom-table th, .custom-table td {
+    border: 1px solid #dfe2e5;
+    padding: 12px 15px;
+    text-align: left;
 }
-td:first-child {
-    font-weight: bold;
-    width: 120px;         /* 增加第一列的宽度 */
+.custom-table thead {
     background-color: #f6f8fa;
 }
-</style>
+.custom-table thead th {
+    font-weight: 600;
+}
+.custom-table tbody tr:hover {
+    background-color: #f6f8fa;
+}
+.custom-table a {
+    color: #0969da;
+    text-decoration: none;
+    font-weight: 500;
+}
+.custom-table a:hover {
+    text-decoration: underline;
+}
+/* --- 【新增】让 About 页面的主容器更宽 --- */
+#main {
+    max-width: 1000px; /* 将默认的最大宽度（通常是700px左右）增加到1000px */
+}
+
+<p></style></p>
+
     </div>
     
     
