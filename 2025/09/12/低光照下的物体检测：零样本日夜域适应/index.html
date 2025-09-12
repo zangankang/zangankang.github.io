@@ -330,6 +330,7 @@ mjx-container[display="true"] + br {
 </tbody>
 </table>
 <h2 id="低光照下的目标检测零样本日夜域适应">低光照下的目标检测，零样本日夜域适应</h2>
+<span id="more"></span>
 <p>提出了一种叫DAI-Net的新方法，专门解决在光线很暗的图片里面识别物体。核心思想是剥离光照的影响，只关注物体本身的样子(颜色、纹理)。</p>
 <h4 id="retinex理论">Retinex理论</h4>
 <p>该理论假设，一张图片可以被分解成两个部分：</p>
@@ -422,6 +423,65 @@ fake)，这个特征要和“原版SID模型”的编码器 (Gle) 从对应的RA
 <p>2、学生模型：G2e编码器</p>
 <p>3、训练数据：使用SID数据集中已有的RAW图像和对应的RGB图像对。</p>
 <p>4、训练由两个损失函数共同驱动，以确保G2e能够学习得足够像：</p>
+<p><span class="math display"><em>L</em><sub><em>R</em><em>G</em><em>B</em></sub> = ||<em>R</em><em>G</em><em>B</em><sub><em>d</em><em>a</em><em>t</em><em>a</em></sub> − <em>R</em><em>G</em><em>B</em><sub><em>f</em><em>a</em><em>k</em><em>e</em></sub>||<sub>1</sub></span></p>
+<p><span class="math display"><em>L</em><sub><em>R</em><em>G</em><em>B</em></sub></span>（RGB损失）：将学生模型G2e生成的伪潜在特征输入到教师模型的解码器Gld中，重建出一张伪RGB图像（RGB
+fake）。然后计算这张伪图像与真实的RGB图像之间的L1损失（像素差的绝对值之和）。这个损失确保了G2e生成的潜在特征能够被Gld正确地解码回RGB图像。</p>
+<p><span class="math display"><em>L</em><sub><em>L</em><em>F</em></sub> = ∑<sub><em>i</em></sub>||<em>L</em><em>F</em><sub><em>G</em>2<em>e</em></sub><sup><em>i</em></sup> − <em>L</em><em>F</em><sub><em>G</em>1<em>e</em></sub><sup><em>i</em></sup>||<sub>1</sub>,</span></p>
+<p><span class="math display"><em>L</em><sub><em>L</em><em>F</em></sub></span>（潜在特征损失）：直接比较学生G2e从RGB图像生成的潜在特征，和教师Gle从对应的RAW图像生成的潜在特征之间的L1损失。这是知识蒸馏的核心，它强制G2e学习SID模型内部的特征表示，而不仅仅是最终的输出结果（重建结果）。</p>
+<p>通过最小化两个损失之和，<span class="math display"><em>L</em><sub><em>t</em><em>o</em><em>t</em><em>a</em><em>l</em></sub> = <em>L</em><sub><em>R</em><em>G</em><em>B</em></sub> + <em>L</em><sub><em>L</em><em>F</em></sub></span>，G2e就学会了如何从一张普通的RGB图像生成一个高质量的、模拟的低光RAW潜在特征。</p>
+<figure>
+<img src="../images/image-20250912214618497.png" alt="image-20250912214618497">
+<figcaption aria-hidden="true">image-20250912214618497</figcaption>
+</figure>
+<p>Glue
+Layer由pool、cat、conv和BN组成，pool和cat函数有助于提取潜在特征。</p>
+<p>这里作者做了实验：</p>
+<figure>
+<img src="../images/image-20250912214946083.png" alt="image-20250912214946083">
+<figcaption aria-hidden="true">image-20250912214946083</figcaption>
+</figure>
+<p>显示了使用SID编码器的潜在特征重建生成的RGB图像。图a是使用了所有潜在特征重建得到的图像。这些图像的峰值信噪比（PSNR）为31.81，与原始图像的结构相似性（SSIM）为0.752。图b、c、d为使用较少潜在特征重建得到的图像，这些图像的质量相对差一些，并且为了检测物体，我们必须识别出物体的具体形状，而b、c、d这些图像形状特征很少。所以作者决定使用所有的潜在特征用于Gule
+Layer。</p>
+<figure>
+<img src="../images/image-20250912215311801.png" alt="image-20250912215311801">
+<figcaption aria-hidden="true">image-20250912215311801</figcaption>
+</figure>
+<p>可以看见SID模型生成的RGB图像和G2e重建得到的图像已经非常相近了。为了进一步优化G2e模型，作者还使用YOLO的分类输出特征向量来优化G2e，以提升其转换域A-&gt;B的性能：</p>
+<p><span class="math display"><em>L</em><sub><em>G</em>2<em>e</em> − <em>F</em><em>T</em></sub> = <em>c</em><em>o</em><em>s</em>(<em>L⃗</em><em>F</em><sub><em>G</em>2<em>e</em> − <em>c</em><em>l</em><em>s</em></sub>, <em>L⃗</em><em>F</em><sub><em>G</em>2<em>e</em> − <em>c</em><em>l</em><em>s</em></sub>)</span></p>
+<p>使用余弦相似度来计算向量之间的损失，通过反向传播进行更新迭代和优化。</p>
+<h4 id="整个模型训练环境">整个模型训练环境：</h4>
+<p>在上面成功训练出生成模型G2e之后，现在来看如何使用G2e来训练真正的目标——Glue
+Layer。</p>
+<figure>
+<img src="../images/image-20250912215647102.png" alt="image-20250912215647102">
+<figcaption aria-hidden="true">image-20250912215647102</figcaption>
+</figure>
+<p>整个训练过程可以分为训练、验证和预测三个阶段。</p>
+<p><strong>训练阶段：</strong></p>
+<p>1、两条并行路径。上方的G2e路径，RGB图像首先输入我们训练好的生成模型编码器G2e中，生成伪潜在特征A。然后将其送入Glue
+Layer，Glue
+Layer将特征A转换为特征B，然后送入YOLO模型的后半部分得到目标检测结果。</p>
+<p>下方的原始YOLO路径，与上面相同的RGB图像被送入一个<strong>未经修改的、预训练好的原始YOLO模型</strong>，这个模型也会在其中间层生成一个潜在特征B’。</p>
+<p>2、两个损失函数。</p>
+<p><span class="math display"><em>L</em><sub><em>Y</em><em>O</em><em>L</em><em>O</em></sub></span>（YOLO损失）：比较上方路径输出的检测结果和真实的类别、边界框标注，计算它们之间的差距
+。</p>
+<p><span class="math display"><em>L</em><sub><em>Y</em><em>O</em><em>L</em><em>O</em> − <em>L</em><em>F</em></sub> = ||<em>L</em><em>F</em><sub><em>g</em><em>l</em><em>u</em><em>e</em></sub> − <em>L</em><em>F</em><sub><em>Y</em><em>O</em><em>L</em><em>O</em></sub>||<sub>2</sub>.</span></p>
+<p><span class="math display"><em>L</em><sub><em>Y</em><em>O</em><em>L</em><em>O</em> − <em>L</em><em>F</em></sub></span>（潜在特征损失）：这是一个起辅助和正则化作用的损失
+。它比较上方路径中<strong>Glue
+Layer输出的特征B</strong>和下方路径中<strong>原始YOLO模型生成的特征B’</strong>之间的L2损失（欧氏距离）。这个损失强制Glue
+Layer学习生成一种YOLO模型的后半部分“能够理解”和“习惯处理”的特征，起到了“提示”的作用。</p>
+<p><strong>通过优化这两个损失的总和<span class="math display"><em>L</em><sub><em>t</em><em>o</em><em>t</em><em>a</em><em>l</em></sub> = <em>L</em><sub><em>Y</em><em>O</em><em>L</em><em>O</em></sub> + <em>λ</em><em>L</em><sub><em>Y</em><em>O</em><em>L</em><em>O</em> − <em>L</em><em>F</em></sub></span>Glue
+Layer被有效训练，学会了如何将SID模型的潜在特征A转换成YOLO模型的潜在特征B。</strong></p>
+<p><strong>验证阶段</strong></p>
+<p>验证流程和训练流程基本一致，使用RGB数据通过G2e的路径来评估模型性能，以确认Glue
+Layer是否被正确训练 。</p>
+<p><strong>预测阶段</strong>：</p>
+<p>输入的是<strong>真实的低光RAW图像</strong>。数据流不再经过G2e，而是通过原版的SID编码器Gle，然后进入我们训练好的Glue
+Layer，最后由YOLO的后端输出检测结果 。</p>
+<h4 id="总结">总结：</h4>
+<p>首先用知识蒸馏创造一个“模拟器”(G2e)，然后利用这个模拟器和现有的RGB数据集来训练连接层
+Glue
+Layer，最终实现了在不需要新数据集的情况下，<strong>将两个不同领域的模型成功合并</strong>。</p>
 
     </div>
     
