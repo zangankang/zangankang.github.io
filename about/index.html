@@ -35,6 +35,11 @@
 <script src="/js/lib/highlight.js"></script>
 
 
+<script src="https://s4.zstatic.net/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+<script src="https://s4.zstatic.net/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"></script>
+<link rel="stylesheet" href="https://s4.zstatic.net/ajax/libs/KaTeX/0.16.9/katex.min.css" />
+<script src="/js/lib/math.js"></script>
+
 
 <script src="/js/lib/preview.js"></script>
 
@@ -48,7 +53,119 @@
 
 <link rel="stylesheet" href="/css/main.css" />
 
-  <meta name="generator" content="Hexo 7.3.0"></head>
+  <meta name="generator" content="Hexo 7.3.0"><style>mjx-container[jax="SVG"] {
+  direction: ltr;
+}
+
+mjx-container[jax="SVG"] > svg {
+  overflow: visible;
+}
+
+mjx-container[jax="SVG"][display="true"] {
+  display: block;
+  text-align: center;
+  margin: 1em 0;
+}
+
+mjx-container[jax="SVG"][justify="left"] {
+  text-align: left;
+}
+
+mjx-container[jax="SVG"][justify="right"] {
+  text-align: right;
+}
+
+g[data-mml-node="merror"] > g {
+  fill: red;
+  stroke: red;
+}
+
+g[data-mml-node="merror"] > rect[data-background] {
+  fill: yellow;
+  stroke: none;
+}
+
+g[data-mml-node="mtable"] > line[data-line] {
+  stroke-width: 70px;
+  fill: none;
+}
+
+g[data-mml-node="mtable"] > rect[data-frame] {
+  stroke-width: 70px;
+  fill: none;
+}
+
+g[data-mml-node="mtable"] > .mjx-dashed {
+  stroke-dasharray: 140;
+}
+
+g[data-mml-node="mtable"] > .mjx-dotted {
+  stroke-linecap: round;
+  stroke-dasharray: 0,140;
+}
+
+g[data-mml-node="mtable"] > svg {
+  overflow: visible;
+}
+
+[jax="SVG"] mjx-tool {
+  display: inline-block;
+  position: relative;
+  width: 0;
+  height: 0;
+}
+
+[jax="SVG"] mjx-tool > mjx-tip {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+mjx-tool > mjx-tip {
+  display: inline-block;
+  padding: .2em;
+  border: 1px solid #888;
+  font-size: 70%;
+  background-color: #F8F8F8;
+  color: black;
+  box-shadow: 2px 2px 5px #AAAAAA;
+}
+
+g[data-mml-node="maction"][data-toggle] {
+  cursor: pointer;
+}
+
+mjx-status {
+  display: block;
+  position: fixed;
+  left: 1em;
+  bottom: 1em;
+  min-width: 25%;
+  padding: .2em .4em;
+  border: 1px solid #888;
+  font-size: 90%;
+  background-color: #F8F8F8;
+  color: black;
+}
+
+foreignObject[data-mjx-xml] {
+  font-family: initial;
+  line-height: normal;
+  overflow: visible;
+}
+
+.MathJax path {
+  stroke-width: 3;
+}
+
+mjx-container[display="true"] {
+  overflow: auto hidden;
+}
+
+mjx-container[display="true"] + br {
+  display: none;
+}
+</style></head>
   <body>
     <canvas
       id="fireworks"
@@ -205,50 +322,83 @@
     </div>
     
     <div class="content" v-pre>
-        <h3 id="Hi-there-👋"><a href="#Hi-there-👋" class="headerlink" title="Hi there 👋"></a>Hi there 👋</h3><blockquote>
-<p>用键盘把想象变为现实，让世界因写下的每一行代码而不同。<br>一名正在学习的开发者，目前在西北工业大学自动化学院读研究生，很高兴认识你。</p>
+        <h3 id="hi-there">Hi there 👋</h3>
+<blockquote>
+<p>用键盘把想象变为现实，让世界因写下的每一行代码而不同。
+一名正在学习的开发者，目前在西北工业大学自动化学院读研究生，很高兴认识你。</p>
 </blockquote>
 <hr>
-<h2 class="custom-h2"><span class="custom-icon">💡</span> 语言 (Languages)</h2>
+<h2 class="custom-h2">
+<span class="custom-icon">💡</span> 语言 (Languages)
+</h2>
 <ul class="custom-ul">
-    <li><span class="emoji" data-emoji="snake">🐍</span> Python</li>
-    <li><span class="emoji" data-emoji="lightning">⚡</span> Vue</li>
-    </ul>
-
-<h2 class="custom-h2"><span class="custom-icon">🛰️</span> 帐号 (Contact)</h2>
+<li>
+<span class="emoji" data-emoji="snake">🐍</span> Python
+</li>
+<li>
+<span class="emoji" data-emoji="lightning">⚡</span> Vue
+</li>
+</ul>
+<h2 class="custom-h2">
+<span class="custom-icon">🛰️</span> 帐号 (Contact)
+</h2>
 <table class="custom-table">
-    <colgroup>
-      <col style="width: 9%">
-      <col style="width: 90%">
-    </colgroup>
-    <thead>
-        <tr>
-            <th style="text-align: center">网站</th>
-            <th style="text-align: left">帐号</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr>
-            <td style="text-align: center">GitHub</td>
-            <td style="text-align: left"><a href="https://github.com/zangankang" target="_blank" rel="noopener noreferrer">zangankang</a></td>
-        </tr>
-        <tr>
-            <td style="text-align: center">Email</td>
-            <td style="text-align: left"><a href="mailto:ch_zangak@163.com">ch_zangak@163.com</a></td>
-        </tr>
-        <tr>
-            <td style="text-align: center">QQ</td>
-            <td style="text-align: left">2697109174</td>
-        </tr>
-        <tr>
-            <td style="text-align: center">Bilibili</td>
-            <td style="text-align: left"><a href="https://space.bilibili.com/498004710?spm_id_from=333.1007.0.0" target="_blank" rel="noopener noreferrer">bili_28936658741</a></td>
-        </tr>
-        </tbody>
-</table> 
-        <p>
-          <img src="/images/avatar.jpg" style="border-radius: 50%; width: 50%" alt="avatar">
-        </p>
+<colgroup>
+<col style="width: 9%">
+<col style="width: 90%">
+</colgroup>
+<thead>
+<tr>
+<th style="text-align: center">
+网站
+</th>
+<th style="text-align: left">
+帐号
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center">
+GitHub
+</td>
+<td style="text-align: left">
+<a href="https://github.com/zangankang" target="_blank" rel="noopener noreferrer">zangankang</a>
+</td>
+</tr>
+<tr>
+<td style="text-align: center">
+Email
+</td>
+<td style="text-align: left">
+<a href="mailto:ch_zangak@163.com">ch_zangak@163.com</a>
+</td>
+</tr>
+<tr>
+<td style="text-align: center">
+QQ
+</td>
+<td style="text-align: left">
+2697109174
+</td>
+</tr>
+<tr>
+<td style="text-align: center">
+Bilibili
+</td>
+<td style="text-align: left">
+<a href="https://space.bilibili.com/498004710?spm_id_from=333.1007.0.0" target="_blank" rel="noopener noreferrer">bili_28936658741</a>
+</td>
+</tr>
+</tbody>
+</table>
+<pre><code>    &lt;p&gt;
+      &lt;img
+        src="/images/avatar.jpg"
+        style="border-radius: 50%; width: 50%"
+        alt="avatar"
+      /&gt;
+    &lt;/p&gt;</code></pre>
 <style>
 /* --- 自定义标题样式 --- */
 .custom-h2 {
@@ -309,7 +459,7 @@
     text-decoration: underline;
 }
 
-<p></style><p></p>
+</style>
 
     </div>
     
