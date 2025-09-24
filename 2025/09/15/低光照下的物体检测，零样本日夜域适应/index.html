@@ -400,13 +400,11 @@ information</strong></p>
 <p>3、第二次分解(重分解)：现在，让模型去分解这两张新造出来的图片C和D。</p>
 <p>新图C -&gt; 样貌C’ + 光照C’</p>
 <p>新图D -&gt; 样貌D’ + 光照D’</p>
-<p>4、要求一致（Coherence），<strong>引入一个重新分解的cohering
-损失，来使得两次分解中产生的反射率保持一致。</strong></p>
+<p>4、要求一致（Coherence），<strong>引入一个重新分解的一致性损失，来使得两次分解中产生的反射率保持一致。</strong></p>
 <p>从新图C分解出的<strong>样貌C’</strong>，必须和最初的<strong>样貌A</strong>一模一样。</p>
 <p>从新图D分解出的<strong>样貌D’</strong>，必须和最初的<strong>样貌B</strong>一模一样。</p>
 <p>如果不一样，<strong>就通过一个“损失函数”（可以理解为一种惩罚机制）来惩罚模型，迫使它去调整学习，直到分解出的结果非常稳定准确。</strong></p>
-<p>设计了一个损失函数A redecomposition cohering
-loss来保证两次分解得到的分解结果一致。</p>
+<p>设计了一个损失函数重分解一致性损失函数来保证两次分解得到的分解结果一致。</p>
 <h5 id="目标">目标：</h5>
 <p>通过两次分解来迫使模型学习到光照不变特征。第一次分解相当于老师教你做题，第二次分解是老师改编题让你做。</p>
 <p>最终达到：无论我怎么给你换光照（亮光、暗光、甚至把亮物体的光换给暗物体），你都必须认出这个物体本来的样子。你提取出的‘物体样貌’必须是恒定不变的。这样模型就能学会提取出非常纯粹、不受光照干扰的物体特征。</p>
@@ -431,18 +429,92 @@ Network（DAI-Net）建立在已有的目标检测器之上，引入了一个用
 <p>所以把反射率解码器接在网络的浅层部分<span class="math display"><em>g</em><sub><em>f</em></sub></span>后面（如图中的黄色块），<strong>“在最合适的地方，用最合适的特征，做最合适的事”</strong>。</p>
 <p><strong>解码器是由两个Conv+ReLU层组成的模块</strong>，<strong>由于目标检测任务的检测头和反射率解码任务的解码器共享了<span class="math display"><em>g</em><sub><em>f</em></sub></span>这部分网络</strong>，当<span class="math display"><em>g</em><sub><em>f</em></sub></span>被优化训练的学会提取出不受光照干扰的、关于反射率的特征，<strong>目标检测任务也建立在这个网络之后，那么它自然而然的就继承了这种光照不变性，也能提取出光照不变特征，从而在黑暗环境中表现更好。</strong></p>
 <h5 id="如何训练这个反射率学习模块用一个专家网络当老师来提供伪真值">2、如何训练这个反射率学习模块？–用一个“专家网络”当老师来提供伪真值。</h5>
-<p>作者发现，让模型在学习物体检测的同时，‘顺便’去学习图像分解，这个过程很不稳定，有时候会失败。因此，作者借助一个<strong>预训练好的Retinex分解网络</strong>，来生成反射率和光照的<strong>伪标准答案(pseudo
+<p>作者发现，让模型在学习物体检测的同时，‘顺便’去学习图像分解，这个过程很不稳定，有时候会失败。因此，作者借助一个<strong>预训练好的Retinex分解网络</strong>，来生成反射率和光照的<strong>伪真值(pseudo
 ground truth)</strong>，用一种更稳定的方式来监督我们的反射率解码器。</p>
-<p>作者一开始尝试了一个很直接的想法：“让我的主模型（DAI-Net）成为一个全能天才，既要学会识别高层语义的‘物体’，又要学会分析底层像素的‘光照’和‘反射率’。”</p>
+<p>作者一开始尝试了一个很直接的想法：“让模型（DAI-Net）成为一个全能天才，既要学会识别高层语义的‘物体’，又要学会分析底层像素的‘光照’和‘反射率’。”</p>
 <p>结果发现，这个想法太理想化了。<strong>“物体检测”和“图像分解”是两个难度和层级都完全不同的任务</strong>。“物体检测”是高层视觉任务，关心的是“这是什么？”；而“图像分解”是底层视觉任务，关心的是“这个像素的物理属性是什么？”。</p>
 <p>让一个模型同时从零开始学这两件截然不同的事，就像要求一个婴儿<strong>同时学习“走路”和“微积分”</strong>。两个任务会互相“打架”，梯度可能相互冲突，导致模型不知道该听谁的，最终哪个都学不好。这就是所谓的<strong>“不稳定”</strong>。</p>
 <p><strong>作者的解决方案非常务实：</strong>
-既然我的主模型当“全能天才”太难了，那我就给他请个“<strong>家教</strong>”！</p>
+用一个教师模型来监督学习。</p>
 <ul>
 <li><strong>“预训练好的Retine-Net”</strong>：就是一个已经训练好的、专门负责图像分解的“<strong>专家网络</strong>”，我们可以把它看作是这个领域的“<strong>微积分老师</strong>”。</li>
-<li><strong>“伪标准答案”</strong>：让这个“专家老师”先对输入的图片进行分解，得到它认为正确的反射率和光照图。这个答案虽然不是100%完美的“真理”，但已经足够好了，可以作为一份<strong>高质量的“参考答案”</strong>。</li>
-<li><strong>“更稳定的方式”</strong>：现在，DAI-Net中的反射率解码器任务就变简单了，它不再需要从零开始领悟物理规律，<strong>只需要模仿“专家老师”给出的参考答案即可</strong>。这种学习方式目标明确，过程稳定，效果更好。</li>
+<li><strong>“伪真值”</strong>：让这个“专家老师”先对输入的图片进行分解，得到它认为正确的反射率和光照图。这个答案虽然不是100%完美的“真理”，但已经足够好了，<strong>可以使用这个伪真值作为监督信号。</strong></li>
+<li><strong>“更稳定的方式”</strong>：现在，DAI-Net中的反射率解码器任务就变简单了，它不再需要从零开始领悟物理规律，<strong>只需要模仿“教师模型”给出的伪真值即可</strong>。这种学习方式目标明确，过程稳定，效果更好。</li>
 </ul>
+<h5 id="光照不变增强策略">光照不变增强策略</h5>
+<p>作者进一步引入了一种光照不变性增强策略，从特征层面来增强检测器的光照不变性。<strong>用一种“强制拉近”的方法，逼迫模型对于同一张图的“正常光照”版本和“黑暗环境”版本，产生尽可能相似的内部特征。</strong></p>
+<ul>
+<li><strong>一对正常光照图像和合成的弱光图像之间的光照差异会导致不同的特征分布</strong>，当其输入模型时，它会产生两种完全不同的内部特征图<span class="math display"><em>F</em><sup><em>n</em></sup></span>和<span class="math display"><em>F</em><sup><em>l</em></sup></span>，就像你看一张清晰的照片和一张漆黑的照片，你的第一反映和关注点是完全不同的。但从根本上说，<strong>这两张图片描绘的是完全相同的内容和物体，这两个图像本质上具有相同的语义信息。</strong></li>
+<li>而目标是让模型学习光照不变性特征表示，即让它学习到无论光线如何变化，里面的猫还是那只猫。要实现这一点，就必须<strong>要求输入到反射率解码器中的来自<span class="math display"><em>g</em><sub><em>f</em></sub></span>的输出特征F在正常光照和弱光图像之间紧密对齐。</strong>也就是说要强迫模型在看到正常光照和弱光照图片时，其内部产生的特征<span class="math display"><em>F</em><sup><em>n</em></sup></span>和<span class="math display"><em>F</em><sup><em>l</em></sup></span>应该<strong>尽可能地相似或对齐。</strong></li>
+</ul>
+<p>作者通过设计一个<strong>相互特征对齐损失</strong>来显式匹配从<span class="math display"><em>g</em><sub><em>f</em></sub></span>中提取的光照良好<span class="math display"><em>F</em><sup><em>n</em></sup></span>和弱光特征<span class="math display"><em>F</em><sup><em>l</em></sup></span>：</p>
+<p><span class="math display"><em>L</em><sub><em>m</em><em>f</em><em>a</em></sub> = <em>K</em><em>L</em>(<em>F</em><sup><em>n</em></sup>||<em>F</em><sup><em>l</em></sup>) + <em>K</em><em>C</em>(<em>F</em><sup><em>l</em></sup>||<em>F</em><sup><em>n</em></sup>),</span></p>
+<p>KL散度是专门用来测量两个特征分布之间的差异有多大。如果两个特征分布完全一样，KL散度就是0。差异越大，KL散度值也越大。</p>
+<p>在训练时，这个惩罚项被加入到模型的总损失函数中。模型的目标是让总损失函数尽可能小。因此，它必须努力调整自己的参数，使得
+<span class="math display"><em>F</em><sup><em>n</em></sup></span>和<span class="math display"><em>F</em><sup><em>l</em></sup></span>​之间的差异尽可能小，从而让这个惩罚项也尽可能地接近0。<strong>为了避免被惩罚，模型被迫学会忽略光照带来的表面差异，转而专注于图中不变的核心内容，从而在特征层面实现了“光照不变性”。</strong></p>
+<h4 id="interchange-redecomposition-coherence">Interchange-Redecomposition-Coherence</h4>
+<p>为了进一步增强反射率学习，作者设计一个更强的图像分解过程。</p>
+<ul>
+<li>给定一对弱光图像<span class="math display"><em>I</em><sup><em>l</em></sup></span>和正常光照的图像<span class="math display"><em>I</em><sup><em>n</em></sup></span>，<strong>通过一次基于Retinex的图像分解过程将它们分解成相应的反射率和光照</strong>，即来自于<span class="math display"><em>I</em><sup><em>l</em></sup></span>的弱光反射率<span class="math display"><em>R</em><sub>1</sub><sup><em>l</em></sup></span>和光照信息<span class="math display"><em>L</em><sup><em>l</em></sup></span>以及来自于<span class="math display"><em>I</em><sup><em>n</em></sup></span>的正常光照反射率<span class="math display"><em>R</em><sub>1</sub><sup><em>n</em></sup></span>和光照信息<span class="math display"><em>I</em><sup><em>n</em></sup></span>。</li>
+<li><strong>反射率<span class="math display"><em>R</em><sub>1</sub><sup><em>l</em></sup></span>和<span class="math display"><em>R</em><sub>1</sub><sup><em>n</em></sup></span>（它们在理想情况下应该是相同的）应该是相互可互换的，当与相应的光照图<span class="math display"><em>L</em><sup><em>n</em></sup>, <em>L</em><sup><em>l</em></sup></span>结合时，应该可以重建<span class="math display"><em>I</em><sup><em>n</em></sup>, <em>I</em><sup><em>l</em></sup></span>。</strong></li>
+</ul>
+<p>所以根据这种互换性，<strong>我们可以添加一个约束来加强图像分解和反射率表示学习</strong>。</p>
+<p>一种直观的方法是：通过互换反射率重建得到图像之后，一旦它们偏离原始输入，我们就对它施加惩罚，这是一个普通的惩罚损失约束。<strong>而这里为了充分利用图像分解中产生的信息，作者提出了一个interchange-redecomposition-coherence过程，</strong>如图右侧所示。</p>
+<ul>
+<li>首先，我们在光线充足和光线不足的图像之间交换反射率，并将图像重建为<span class="math display"><em>I</em><sub>2</sub><sup><em>l</em></sup> = <em>R</em><sub>1</sub><sup><em>n</em></sup> ⋅ <em>L</em><sup><em>l</em></sup>, <em>I</em><sub>2</sub><sup><em>n</em></sup> = <em>R</em><sub>1</sub><sup><em>l</em></sup> ⋅ <em>L</em><sup><em>n</em></sup>.</span></li>
+<li>然后重建的图像进行第二轮分解。</li>
+<li><strong>由于DAI-Net的重点是学习图像的光照不变部分（反射率）</strong>，所以作者使用DAI-Net中与第一轮分解相同的反射率解码分支<strong>从<span class="math display"><em>I</em><sub>2</sub><sup><em>n</em></sup>, <em>I</em><sub>2</sub><sup><em>l</em></sup></span>分解反射率<span class="math display"><em>R</em><sub>2</sub><sup><em>n</em></sup>, <em>R</em><sub>2</sub><sup><em>l</em></sup></span>，并要求它们和第一次分解中得到的相应的反射率<span class="math display"><em>R</em><sub>1</sub><sup><em>l</em></sup>, <em>R</em><sub>1</sub><sup><em>n</em></sup></span>一致。</strong></li>
+</ul>
+<p>因此，作者引入了重分解一致性损失：</p>
+<p><span class="math display"><em>L</em><sub><em>r</em><em>c</em></sub> = ||<em>R</em><sub>1</sub><sup><em>n</em></sup> − <em>R</em><sub>2</sub><sup><em>l</em></sup>||<sub>1</sub> + ||<em>R</em><sub>1</sub><sup><em>l</em></sup> − <em>R</em><sub>2</sub><sup><em>n</em></sup>||<sub>1</sub></span></p>
+<p>与先前那种常规的、比较简单的惩罚损失相比，<span class="math display"><em>L</em><sub><em>r</em><em>c</em></sub></span>引入了一个再分解的过程，从而更充分地利用了反射率的可交换性这一特性。</p>
+<h4 id="模型训练">模型训练：</h4>
+<h5 id="retinex分解网络">1、Retinex分解网络。</h5>
+<p>Retinex分解网络是一个现成的网络，可以基于任何图像分解网络。可以从头开始训练这个网络，也可以直接加载公开可用的预训练权重。</p>
+<p><strong>然后，将其冻结，仅在DAI-Net学习期间推断输入的反射率和光照作为伪真值<span class="math display">{<em>R̂</em>, <em>L̂</em>}</span>。</strong>完美的伪标签不是实现良好检测性能的必要条件。</p>
+<h5 id="dai-net">2、DAI-Net。</h5>
+<p><strong>DAI-Net由检测分支和反射率解码分支组成。对于前者，作者利用所选检测器的检测损失<span class="math display"><em>L</em><sub><em>d</em><em>e</em><em>t</em></sub></span>。</strong></p>
+<p>而反射率解码分支的目标函数总结为三个部分。第一部分由<strong>相互特征对齐损失和重分解损失</strong><span class="math display"><em>L</em><sub><em>m</em><em>f</em><em>a</em></sub>, <em>L</em><sub><em>r</em><em>c</em></sub></span>组成。另外两个部分是：</p>
+<ol type="1">
+<li><p><strong>反射学习损失。</strong></p>
+<ul>
+<li>作者通过一个反射率学习损失<span class="math display"><em>L</em><sub><em>r</em><em>e</em><em>f</em></sub></span>来监督反射率解码器的输出<span class="math display"><em>R</em><sub></sub></span>，具体来说是<strong>用一个预训练网络生成的伪真值<span class="math display"><em>R̂</em></span>来指导<span class="math display"><em>R</em></span>的学习</strong>。该损失函数由两部分组成：
+<ul>
+<li>平均绝对误差（MAE）</li>
+<li>结构相似性指数（SSIM）</li>
+</ul></li>
+<li>在实际操作中，这个监督过程分别<strong>对低光照图像对<span class="math display"><em>R</em><sup><em>l</em></sup>, <em>R̂</em><sup><em>l</em></sup></span>和正常光照图像对<span class="math display"><em>R</em><sup><em>n</em></sup>, <em>R̂</em><sup><em>n</em></sup></span>进行。</strong></li>
+</ul></li>
+<li><p><strong>图像分解损失。</strong></p>
+<ul>
+<li><p>为了进一步加强反射率的学习，作者还引入了“图像分解损失” <span class="math display"><em>L</em><sub><em>d</em><em>e</em><em>c</em><em>o</em><em>m</em></sub></span>，它作用于<strong>模型预测的反射率<span class="math display"><em>R</em></span>和伪真值中的光照<span class="math display"><em>L̂</em></span></strong></p></li>
+<li><p>具体来说，这个损失函数是以下三部分的组合：</p>
+<ul>
+<li>图像重建损失<span class="math display"><em>L</em><sub><em>r</em><em>e</em><em>c</em><em>o</em><em>n</em></sub></span>，<strong>这个损失要求模型预测的反射率<span class="math display"><em>R</em></span>乘以伪真值中的光照 <span class="math display"><em>L̂</em></span>后，能够还原出原始的输入图像 <span class="math display"><em>I</em></span></strong> 。具体来说，<strong>就是
+<span class="math display"><em>R</em><sup><em>l</em></sup> ⋅ <em>L̂</em><sup><em>l</em></sup></span>要能还原出低光图像<span class="math display"><em>I</em><sup><em>l</em></sup></span>，而<span class="math display"><em>R</em><sup><em>n</em></sup> ⋅ <em>L̂</em><sup><em>n</em></sup></span>要能还原出正常光图像<span class="math display"><em>I</em><sup><em>n</em></sup></span>。</strong></li>
+<li>不变反射率损失<span class="math display"><em>L</em><sub><em>i</em><em>r</em></sub></span>，<strong>这个损失在配对的正常光与低光图像之间进行计算
+。它通过均方误差(MSE)和结构相似性指(SSIM)相结合的方式，强制要求模型预测出的正常光反射率
+<span class="math display"><em>R</em><sup><em>n</em></sup></span>和低光反射率
+<span class="math display"><em>R</em><sup><em>l</em></sup></span>必须保持一致
+。</strong></li>
+<li>光照平滑度损失<span class="math display"><em>L</em><sub><em>s</em><em>m</em><em>o</em><em>o</em><em>t</em><em>h</em></sub></span>，这个损失也在配对的输入之间计算。</li>
+</ul></li>
+<li><p>因此，总的图像分解损失函数为：<span class="math display"><em>L</em><sub><em>d</em><em>e</em><em>c</em><em>o</em><em>m</em></sub> = <em>L</em><sub><em>r</em><em>e</em><em>c</em><em>o</em><em>n</em></sub> + <em>λ</em><sub><em>s</em><em>m</em><em>o</em><em>o</em><em>t</em><em>h</em></sub><em>L</em><sub><em>s</em><em>m</em><em>o</em><em>o</em><em>t</em><em>h</em></sub> + <em>λ</em><sub><em>i</em><em>r</em></sub><em>L</em><sub><em>i</em><em>r</em></sub></span></p>
+<p>其中，<span class="math display"><em>λ</em><sub><em>s</em><em>m</em><em>o</em><em>o</em><em>t</em><em>h</em></sub></span>和
+<span class="math display"><em>λ</em><sub><em>i</em><em>r</em></sub></span>分别对应损失项的权重系数。</p></li>
+</ul></li>
+</ol>
+<h4 id="dai-net的总目标函数可以表述为">DAI-Net的总目标函数可以表述为：</h4>
+<p><span class="math display"><em>L</em> = <em>L</em><sub><em>d</em><em>e</em><em>t</em></sub> + <em>λ</em><sub><em>m</em><em>f</em><em>a</em></sub><em>L</em><sub><em>m</em><em>f</em><em>a</em></sub> + <em>λ</em><sub><em>r</em><em>c</em></sub><em>L</em><sub><em>r</em><em>c</em></sub> + <em>L</em><sub><em>r</em><em>e</em><em>f</em></sub> + <em>L</em><sub><em>d</em><em>e</em><em>c</em><em>o</em><em>m</em></sub></span></p>
+<p>其中<span class="math display"><em>λ</em><sub><em>m</em><em>f</em><em>a</em></sub></span>指的是相互特征对齐损失的损失权重，<span class="math display"><em>λ</em><sub><em>r</em><em>c</em></sub></span>指的是再分解一致性损失的损失权重。</p>
+<h4 id="梳理">梳理</h4>
+<p><span class="math display"><em>L</em><sub><em>m</em><em>f</em><em>a</em></sub></span>是特征对齐损失，是对于解码之前的输入特征的损失函数，确保配对正常光照图像和弱光照图像的解码输入特征一致。强制让同一内容在不同光照下的特征表达保持一致。</p>
+<p><span class="math display"><em>L</em><sub><em>r</em><em>c</em></sub></span>是重分解一致性损失，确保模型学习得到反射率与光照真的无关。这个损失函数是通过一个巧妙的“自我检查”机制来达成这个目的的。它不仅要求反射率与光照无关，还要求这个“无关性”是<strong>稳定、自洽</strong>的。它通过“交换-再分解”流程，检验模型预测出的反射率是否具有可替换性，从而保证了其“不变性”的质量。</p>
+<p><span class="math display"><em>L</em><sub><em>r</em><em>e</em><em>c</em><em>o</em><em>n</em></sub></span>​是重建损失，<strong>确保模型预测出的反射率
+R
+是一个“有效”且“正确”的图像组成部分。确保R作为一个“零件”，能够和另一个零件L完美地“组装”回原来的整体I。</strong></p>
+<p>这可以有效防止模型“偷懒”。比如，模型可能会发现，预测一张纯灰色的图像作为反射率R，在其他某些损失上可能得分不低。但这张纯灰色的R，乘以光照图<span class="math display"><em>L̂</em></span>后，是绝对不可能还原出原始图像I的。因此，<strong><span class="math display"><em>L</em><sub><em>r</em><em>e</em><em>c</em><em>o</em><em>n</em></sub></span>会给这种“偷懒”行为一个巨大的惩罚，迫使模型去预测一个真正能够构成原始图像的、有意义的反射率。</strong></p>
+<p><span class="math display"><em>L</em><sub><em>i</em><em>r</em></sub></span>是不变反射率损失，确保配对正常光照图像和弱光照图像的反射率一致。这是在最终的输出层面（反射率图像），直接要求两个版本的反射率图长得一模一样。</p>
 
     </div>
     
