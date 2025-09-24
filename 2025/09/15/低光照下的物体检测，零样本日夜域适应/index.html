@@ -329,7 +329,7 @@ mjx-container[display="true"] + br {
 <p>2、然后引入了一个<strong>interchange-redecomposition-coherence过程</strong>，通过执行<strong>两个顺序的图像分解</strong>和<strong>引入重新分解的redecomposition损失</strong>来改进普通的Retinex图像分解过程。</p>
 <h4 id="da与zsda">DA与ZSDA：</h4>
 <figure>
-<img src="../images/image-20250924143037425.png" alt="image-20250924143037425">
+<img src="/images/image-20250924143037425.png" alt="image-20250924143037425">
 <figcaption aria-hidden="true">image-20250924143037425</figcaption>
 </figure>
 <p>FS是直接使用弱光图像和标签进行全面监督学习，本文在零镜头日夜域适应中进行，<strong>其中目标检测器在只有正常光照图像可用的源域中进行训练，并在没有提供图像的弱光目标域中进行评估</strong>。正常光照源域和弱光目标域之间的<strong>分歧源于照明变化及光照变化带来的破坏</strong>。</p>
@@ -410,7 +410,7 @@ information</strong></p>
 <p>最终达到：无论我怎么给你换光照（亮光、暗光、甚至把亮物体的光换给暗物体），你都必须认出这个物体本来的样子。你提取出的‘物体样貌’必须是恒定不变的。这样模型就能学会提取出非常纯粹、不受光照干扰的物体特征。</p>
 <h4 id="模型">模型：</h4>
 <figure>
-<img src="../images/image-20250924145901968.png" alt="image-20250924145901968">
+<img src="/images/image-20250924145901968.png" alt="image-20250924145901968">
 <figcaption aria-hidden="true">image-20250924145901968</figcaption>
 </figure>
 <p><strong>正常光照的源域和弱光目标域之间的差异主要是因为光照以及光照退化带来的破坏。</strong></p>
@@ -515,6 +515,43 @@ R
 是一个“有效”且“正确”的图像组成部分。确保R作为一个“零件”，能够和另一个零件L完美地“组装”回原来的整体I。</strong></p>
 <p>这可以有效防止模型“偷懒”。比如，模型可能会发现，预测一张纯灰色的图像作为反射率R，在其他某些损失上可能得分不低。但这张纯灰色的R，乘以光照图<span class="math display"><em>L̂</em></span>后，是绝对不可能还原出原始图像I的。因此，<strong><span class="math display"><em>L</em><sub><em>r</em><em>e</em><em>c</em><em>o</em><em>n</em></sub></span>会给这种“偷懒”行为一个巨大的惩罚，迫使模型去预测一个真正能够构成原始图像的、有意义的反射率。</strong></p>
 <p><span class="math display"><em>L</em><sub><em>i</em><em>r</em></sub></span>是不变反射率损失，确保配对正常光照图像和弱光照图像的反射率一致。这是在最终的输出层面（反射率图像），直接要求两个版本的反射率图长得一模一样。</p>
+<h4 id="实验">实验：</h4>
+<p>特征可视化部分比较有意思</p>
+<p>从给定图像的人脸检测模型中的<span class="math display"><em>g</em><sub><em>f</em></sub></span>中提取骨干特征；然后通过应用通道平均将特征转换为单通道映射。</p>
+<figure>
+<img src="/images/image-20250924220358389.png" alt="image-20250924220358389">
+<figcaption aria-hidden="true">image-20250924220358389</figcaption>
+</figure>
+<p>还<strong>可视化了LOL
+v2数据集上的真实配对的光线充足和光线不足的图像上，以观察它们的反射率一致性</strong>。与DSFD相比，<strong>作者的特征图在极低光线环境中捕获了更清晰、更详细的物体信息</strong>。</p>
+<h5 id="特征通道可视化">特征通道可视化。</h5>
+<figure>
+<img src="/images/image-20250924220541765.png" alt="image-20250924220541765">
+<figcaption aria-hidden="true">image-20250924220541765</figcaption>
+</figure>
+<p>从所有<span class="math display"><em>g</em><sub><em>f</em></sub></span>特征中计算每个特征通道的平均幅度。<strong>在WIDER
+FACE上训练的DSFD中，光线充足和光线不足的图像的特征通道的平均幅度彼此不对齐。与光线充足的特征相比，一些弱光特征通道被抑制。</strong>这说明了从特征通道的角度来看，光照变化如何去影响检测器。在DAI-Net中，两个集合的相对平均幅度是一致的，验证了作者的网络学习到的光照不变信息不会随着照明而变化。</p>
+<figure>
+<img src="/images/image-20250924220809383.png" alt="image-20250924220809383">
+<figcaption aria-hidden="true">image-20250924220809383</figcaption>
+</figure>
+<h4 id="总结">总结</h4>
+<h5 id="优点和创新点"><strong>优点和创新点：</strong></h5>
+<ol type="1">
+<li><strong>物理理论与深度学习的精妙结合</strong>：文章没有满足于简单地在特征层面做文章，而是深入到了图像构成的物理本质（Retinex理论），使得模型学习到的不变性有很强的物理解释和理论支撑。</li>
+<li><strong>“交换-再分解-一致性”是最大亮点</strong>：这个自监督流程非常新颖，它不依赖任何额外的标注，仅凭“反射率应该不变”这一先验知识，就构建了一个强大的约束来优化网络。这种“自洽性”或“一致性”的约束是近年来计算机视觉领域一个重要的思想，本文是其非常精彩的应用。</li>
+</ol>
+<h5 id="潜在的讨论点或局限性"><strong>潜在的讨论点或局限性：</strong></h5>
+<ol type="1">
+<li><strong>对合成方法（Dark
+ISP）的依赖</strong>：整个框架的成功，始于能够生成高质量的、物理逼真的配对数据。这意味着，模型的性能上限在一定程度上受限于所使用的“Dark
+ISP”合成方法的真实性。如果合成数据与真实世界的某些低光伪影（如特定类型的炫光、运动模糊）仍有差距，模型的泛化能力可能会受到影响。</li>
+<li><strong>对伪标签网络（RetinexNet）的依赖</strong>：反射率解码器的学习效果，依赖于一个预训练的Retinex分解网络提供的“伪真值”
+。虽然作者在补充材料中证明了换用更好的分解网络能带来性能提升
+，但这也说明DAI-Net的性能与这个“老师”网络的能力是绑定的。</li>
+<li><strong>方法的复杂性</strong>：相比于一些端到端的域适应方法，DAI-Net的训练流程相对复杂，包含了数据合成、预训练网络、多个自定义损失函数和超参数（如各种<span class="math inline"><em>λ</em></span>权重）
+。这可能会增加复现和调试的难度。</li>
+</ol>
 
     </div>
     
