@@ -575,24 +575,24 @@ ISP合成弱光图像之后，使用DSFD对合成图像进行训练检测，</st
 </ul></li>
 <li><p>当反射率解码器附加在backbone<strong>的第M个conv层之后并且它由N个conv层组成时，性能最佳。M和N都默认设置为2。</strong>在这里，作者对不同的M和N进行参数消融实验。</p>
 <figure>
-<img src="../images/image-20250928221803559.png" alt="image-20250928221803559">
+<img src="/images/image-20250928221803559.png" alt="image-20250928221803559">
 <figcaption aria-hidden="true">image-20250928221803559</figcaption>
 </figure></li>
 <li><p>首先N不变，对不同的M进行实验。结果表明，增加或减少M都会略微降低性能，M=2表现最好。</p></li>
 <li><p>然后将M固定为2并改变N的值，以确定更大的N是否有利于反射率解码器。当N增加时，性能实际上会下降。默认的N=2表现最好。</p>
 <figure>
-<img src="../images/image-20250928222207200.png" alt="image-20250928222207200">
+<img src="/images/image-20250928222207200.png" alt="image-20250928222207200">
 <figcaption aria-hidden="true">image-20250928222207200</figcaption>
 </figure></li>
 <li><p>RetinexForm代替Retinex分解网络。<strong>RetinexForm通过Transformer架构显式地模拟反射率和光照贴图中的噪声，从而可以分解得到比本文中使用的原始RetinexNet更鲁棒的伪真值</strong>。替换之后性能得到提升。<strong>这说明了作者的方法是个通用框架，可以更换更强的分解网络。</strong></p></li>
 <li><p><strong>反射率解码损失的有效性分析。</strong>为了优化反射率解码器，作者还添加了反射率学习损失Lref和图像分解损耗Ldecom。<strong>作者将这些损失依次添加到基线中来进行了消融实验。每个损失的使用都对整体性能有明显的贡献。</strong></p>
 <figure>
-<img src="../images/image-20250928222309121.png" alt="image-20250928222309121">
+<img src="/images/image-20250928222309121.png" alt="image-20250928222309121">
 <figcaption aria-hidden="true">image-20250928222309121</figcaption>
 </figure></li>
 <li><p>更多关于重分解一致性损失的结果。作者改变了重分解一致性损失的损失权重<span class="math display"><em>λ</em><sub><em>r</em><em>c</em></sub></span>。<strong>从0.0001到1改变<span class="math display"><em>λ</em><sub><em>r</em><em>c</em></sub></span></strong>，可以看到使用重分解一致性损失与不使用它相比始终显示出更好的性能（不使用这个损失的时候mAP为20.5）。<strong><span class="math display"><em>λ</em><sub><em>r</em><em>c</em></sub> = 0.001</span>时效果最好。</strong></p>
 <figure>
-<img src="../images/image-20250928222438169.png" alt="image-20250928222438169">
+<img src="/images/image-20250928222438169.png" alt="image-20250928222438169">
 <figcaption aria-hidden="true">image-20250928222438169</figcaption>
 </figure></li>
 </ul>
