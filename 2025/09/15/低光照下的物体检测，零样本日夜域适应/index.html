@@ -535,6 +535,67 @@ FACE上训练的DSFD中，光线充足和光线不足的图像的特征通道的
 <img src="/images/image-20250924220809383.png" alt="image-20250924220809383">
 <figcaption aria-hidden="true">image-20250924220809383</figcaption>
 </figure>
+<h4 id="消融实验">消融实验：</h4>
+<figure>
+<img src="/images/image-20250928214724230.png" alt="image-20250928214724230">
+<figcaption aria-hidden="true">image-20250928214724230</figcaption>
+</figure>
+<p>基线是普通的DSFD模型，DISP是使用Dark
+ISP来合成弱光图像。RD列中R表示加入反射率解码分支。</p>
+<ul>
+<li><p>表中前两行，<strong>第一行是直接对真实弱光图像进行训练检测，第二行是使用Dark
+ISP合成弱光图像之后，使用DSFD对合成图像进行训练检测，</strong>会发现直接对合成图像进行训练会使DSFD的精度从15.2%下降到11.6%，<strong>这意味着合成的弱光图像与真实的弱光数据具有不同的属性。</strong></p></li>
+<li><p>第三行是加入了反射率解码分支，性能大幅提升，<strong>添加反射率解码分支作为检测器的辅助有助于增强检测器中的光照不变信息，从而在不同的光照条件下实现更稳健的检测。</strong></p></li>
+<li><p><strong>要想让模型不受光照变化的影响，最好的办法就是让模型专门去学习如何提取出那个理论上光照不变的“物体本质”——也就是反射分量R。</strong>为了验证这一点，作者尝试了其他变体，比如<strong>在DAI-Net中添加用于解码光照（illumination）的辅助分支</strong>，或者<strong>添加用于同时解码反射（reflectance）和光照的辅助分支</strong>，（这两个实验）在表4的RD列中分别用L和R+L来表示。”</p>
+<ul>
+<li><strong>实验变体一 (在表格中记为
+“L”)</strong>:修改了DAI-Net的结构，把那个专门解码反射分量R的辅助分支，改成了专门去解码<strong>光照分量L</strong>。测试一下，如果让模型不学习“物体本质”，而是去学习“光照情况”，对最终的检测结果有没有帮助。效果大幅降低</li>
+<li><strong>实验变体二 (在表格中记为
+“R+L”)</strong>:再次修改DAI-Net，让辅助分支<strong>同时学习解码反射分量R和光照分量L</strong>。测试一下，如果让模型学习一个“完整的分解任务”（既学物体又学光照），会不会比只学习“物体本质”这一个重点任务效果更好。效果仍然降低了一些。</li>
+</ul></li>
+<li><p>作者为了证明“只让模型学习提取反射分量R是最佳策略”这一核心观点，额外做了两个对比实验：一个版本让模型改去学光照L，另一个版本让模型同时学R和L。实验结果表明，这两个对比版本的检测性能都比不上作者最初的设计。这就有力地证明了，要想实现光照不变性，<strong>就应该让模型的辅助任务专一地、集中地学习反射分量R</strong>，任何试图学习光照分量L的额外操作，反而会对最终的检测任务产生干扰，效果更差。</p></li>
+<li><p>表的6-8行比较了<strong>重分解一致损失和普通惩罚损失在重分解过程中的有效性。</strong></p>
+<ul>
+<li>图像分解损失。首先<strong>用惩罚损失Lp来替换DAINet中的Lrc。就是说不加Lrc，而是用这个更简单的Lp，将mAP提高了1.3%到21.8%，这证明交叉重建促进了我们提取这个反射率</strong>
+<ul>
+<li>这里的这个Lp就是作者说的那个普通惩罚损失，<strong>“直观的方法是对使用交换后的反射分量所重建的图像进行惩罚，只要它们偏离了原始输入”</strong></li>
+<li>也就是说
+惩罚用<strong>夜晚的反射</strong>和<strong>白天的光照</strong>重建出一张“新的白天”图像和原始白天图像之间的差异，
+惩罚用<strong>白天的反射</strong>和<strong>夜晚的光照</strong>重建出一张“新的夜晚”图像和原始夜晚图像之间的差异，</li>
+<li>它背后的逻辑是：如果你的反射分量R真的是光照不变的，那么我把它换到另一个光照环境里，理应能完美地重建出那个环境下的图像。如果重建得不像，就说明你的分解有问题。</li>
+<li>这不就是代码里面那个交叉线重建损失`recon_loss_mutal_low/high吗</li>
+</ul></li>
+<li>重分解一致性损失，<strong>DP列下的Lrc表示在训练期间利用重分解一致性损失，而不用Lp损失</strong>。性能从20.5%提高到22.3%，<strong>优于图像分解损失</strong>。这是因为<strong>我们通过约束重新分解和再次分解的结果充分利用了反射率互换性。</strong></li>
+<li>可以同时使用两种损失。表中的结果显示几乎没有改善<strong>，这表明分解损失的提升基本上可以被重分解一致性损失所覆盖。</strong></li>
+<li>更多的重新分解。作者也尝试过实现三次分解。性能几乎没有提高。考虑到计算效率，作者坚持两次分解。</li>
+</ul></li>
+<li><p>Lmfa列表示使用相互特征对齐损失。<strong>在浅层网络的特征施加光照不变性的约束。</strong>作者展示了使用KL-散度作为Lmfa将mAP从22.3%增加到23.5%，这验证了它的有效性。</p>
+<ul>
+<li>L1和L2表示进一步用L1和L2距离代替KL散度。<strong>性能有所降低，因为它们的约束要更强一些。</strong></li>
+</ul></li>
+<li><p>当反射率解码器附加在backbone<strong>的第M个conv层之后并且它由N个conv层组成时，性能最佳。M和N都默认设置为2。</strong>在这里，作者对不同的M和N进行参数消融实验。</p>
+<figure>
+<img src="../images/image-20250928221803559.png" alt="image-20250928221803559">
+<figcaption aria-hidden="true">image-20250928221803559</figcaption>
+</figure></li>
+<li><p>首先N不变，对不同的M进行实验。结果表明，增加或减少M都会略微降低性能，M=2表现最好。</p></li>
+<li><p>然后将M固定为2并改变N的值，以确定更大的N是否有利于反射率解码器。当N增加时，性能实际上会下降。默认的N=2表现最好。</p>
+<figure>
+<img src="../images/image-20250928222207200.png" alt="image-20250928222207200">
+<figcaption aria-hidden="true">image-20250928222207200</figcaption>
+</figure></li>
+<li><p>RetinexForm代替Retinex分解网络。<strong>RetinexForm通过Transformer架构显式地模拟反射率和光照贴图中的噪声，从而可以分解得到比本文中使用的原始RetinexNet更鲁棒的伪真值</strong>。替换之后性能得到提升。<strong>这说明了作者的方法是个通用框架，可以更换更强的分解网络。</strong></p></li>
+<li><p><strong>反射率解码损失的有效性分析。</strong>为了优化反射率解码器，作者还添加了反射率学习损失Lref和图像分解损耗Ldecom。<strong>作者将这些损失依次添加到基线中来进行了消融实验。每个损失的使用都对整体性能有明显的贡献。</strong></p>
+<figure>
+<img src="../images/image-20250928222309121.png" alt="image-20250928222309121">
+<figcaption aria-hidden="true">image-20250928222309121</figcaption>
+</figure></li>
+<li><p>更多关于重分解一致性损失的结果。作者改变了重分解一致性损失的损失权重<span class="math display"><em>λ</em><sub><em>r</em><em>c</em></sub></span>。<strong>从0.0001到1改变<span class="math display"><em>λ</em><sub><em>r</em><em>c</em></sub></span></strong>，可以看到使用重分解一致性损失与不使用它相比始终显示出更好的性能（不使用这个损失的时候mAP为20.5）。<strong><span class="math display"><em>λ</em><sub><em>r</em><em>c</em></sub> = 0.001</span>时效果最好。</strong></p>
+<figure>
+<img src="../images/image-20250928222438169.png" alt="image-20250928222438169">
+<figcaption aria-hidden="true">image-20250928222438169</figcaption>
+</figure></li>
+</ul>
 <h4 id="总结">总结</h4>
 <h5 id="优点和创新点"><strong>优点和创新点：</strong></h5>
 <ol type="1">
