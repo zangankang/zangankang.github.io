@@ -404,7 +404,7 @@ Layer。</p>
 <figcaption aria-hidden="true">image-20250912215311801</figcaption>
 </figure>
 <p>可以看见SID模型生成的RGB图像和G2e重建得到的图像已经非常相近了。为了进一步优化G2e模型，作者还使用YOLO的分类输出特征向量来优化G2e，以提升其转换域A-&gt;B的性能：</p>
-<p><span class="math display"><em>L</em><sub><em>G</em>2<em>e</em> − <em>F</em><em>T</em></sub> = <em>c</em><em>o</em><em>s</em>(<em>L⃗</em><em>F</em><sub><em>G</em>2<em>e</em> − <em>c</em><em>l</em><em>s</em></sub>, <em>L⃗</em><em>F</em><sub><em>G</em>2<em>e</em> − <em>c</em><em>l</em><em>s</em></sub>)</span></p>
+<p><span class="math display"><em>L</em><sub><em>G</em>2<em>e</em> − <em>F</em><em>T</em></sub> = <em>c</em><em>o</em><em>s</em>(<em>L⃗</em><em>F</em><sub><em>G</em>2<em>e</em> − <em>c</em><em>l</em><em>s</em></sub>, <em>L⃗</em><em>F</em><sub><em>Y</em><em>O</em><em>L</em><em>O</em> − <em>c</em><em>l</em><em>s</em></sub>)</span></p>
 <p>使用余弦相似度来计算向量之间的损失，通过反向传播进行更新迭代和优化。</p>
 <h4 id="整个模型训练环境">整个模型训练环境：</h4>
 <p>在上面成功训练出生成模型G2e之后，现在来看如何使用G2e来训练真正的目标——Glue
