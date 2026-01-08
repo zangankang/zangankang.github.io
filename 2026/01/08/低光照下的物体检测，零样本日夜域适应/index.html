@@ -1,0 +1,667 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>低光照下的物体检测，零样本日夜域适应 | NWPU-ZAK</title>
+    <meta name="author" content="Zang Ankang" />
+    <meta name="description" content="兄弟们，一定要出人头地啊" />
+    <meta name="keywords" content="" />
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0"
+    />
+    <link rel="icon" href="/images/avatar.jpg" />
+    <link rel="preconnect" href="https://s4.zstatic.net" />
+<script src="https://s4.zstatic.net/ajax/libs/vue/3.3.7/vue.global.prod.min.js"></script>
+<link rel="stylesheet" href="https://s4.zstatic.net/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
+<link rel="preconnect" href="https://fonts.googleapis.cn" />
+<link rel="preconnect" href="https://fonts.gstatic.cn" crossorigin />
+<link
+    rel="stylesheet"
+    href="https://fonts.googleapis.cn/css2?family=Fira+Code:wght@400;500;600;700&family=Lexend:wght@400;500;600;700;800;900&family=Noto+Sans+SC:wght@400;500;600;700;800;900&display=swap"
+/>
+<script> const mixins = {}; </script>
+
+<script src="https://polyfill.alicdn.com/v3/polyfill.min.js?features=default"></script>
+
+
+<script src="https://s4.zstatic.net/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script src="https://s4.zstatic.net/ajax/libs/highlightjs-line-numbers.js/2.8.0/highlightjs-line-numbers.min.js"></script>
+<link
+    rel="stylesheet"
+    href="https://s4.zstatic.net/ajax/libs/highlight.js/11.9.0/styles/github.min.css"
+/>
+<script src="/js/lib/highlight.js"></script>
+
+
+
+<script src="/js/lib/preview.js"></script>
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/css/main.css" />
+
+<meta name="generator" content="Hexo 7.3.0"><style>mjx-container[jax="SVG"] {
+  direction: ltr;
+}
+
+mjx-container[jax="SVG"] > svg {
+  overflow: visible;
+}
+
+mjx-container[jax="SVG"][display="true"] {
+  display: block;
+  text-align: center;
+  margin: 1em 0;
+}
+
+mjx-container[jax="SVG"][justify="left"] {
+  text-align: left;
+}
+
+mjx-container[jax="SVG"][justify="right"] {
+  text-align: right;
+}
+
+g[data-mml-node="merror"] > g {
+  fill: red;
+  stroke: red;
+}
+
+g[data-mml-node="merror"] > rect[data-background] {
+  fill: yellow;
+  stroke: none;
+}
+
+g[data-mml-node="mtable"] > line[data-line] {
+  stroke-width: 70px;
+  fill: none;
+}
+
+g[data-mml-node="mtable"] > rect[data-frame] {
+  stroke-width: 70px;
+  fill: none;
+}
+
+g[data-mml-node="mtable"] > .mjx-dashed {
+  stroke-dasharray: 140;
+}
+
+g[data-mml-node="mtable"] > .mjx-dotted {
+  stroke-linecap: round;
+  stroke-dasharray: 0,140;
+}
+
+g[data-mml-node="mtable"] > svg {
+  overflow: visible;
+}
+
+[jax="SVG"] mjx-tool {
+  display: inline-block;
+  position: relative;
+  width: 0;
+  height: 0;
+}
+
+[jax="SVG"] mjx-tool > mjx-tip {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+mjx-tool > mjx-tip {
+  display: inline-block;
+  padding: .2em;
+  border: 1px solid #888;
+  font-size: 70%;
+  background-color: #F8F8F8;
+  color: black;
+  box-shadow: 2px 2px 5px #AAAAAA;
+}
+
+g[data-mml-node="maction"][data-toggle] {
+  cursor: pointer;
+}
+
+mjx-status {
+  display: block;
+  position: fixed;
+  left: 1em;
+  bottom: 1em;
+  min-width: 25%;
+  padding: .2em .4em;
+  border: 1px solid #888;
+  font-size: 90%;
+  background-color: #F8F8F8;
+  color: black;
+}
+
+foreignObject[data-mjx-xml] {
+  font-family: initial;
+  line-height: normal;
+  overflow: visible;
+}
+
+.MathJax path {
+  stroke-width: 3;
+}
+
+mjx-container[display="true"] {
+  overflow: auto hidden;
+}
+
+mjx-container[display="true"] + br {
+  display: none;
+}
+</style></head>
+<body>
+    <div id="layout">
+        <transition name="fade">
+            <div id="loading" v-show="loading">
+                <div id="loading-circle">
+                    <h2>LOADING</h2>
+                    <p>加载过慢请开启缓存 浏览器默认开启</p>
+                    <img src="/images/loading.gif" />
+                </div>
+            </div>
+        </transition>
+        <div id="menu" :class="{ hidden: hiddenMenu, 'menu-color': menuColor}">
+    <nav id="desktop-menu">
+        <a class="title" href="/">
+            <span>NWPU-ZAK</span>
+        </a>
+        
+        <a href="/">
+            <i class="fa-solid fa-house fa-fw"></i>
+            <span>&ensp;Home</span>
+        </a>
+        
+        <a href="/about">
+            <i class="fa-solid fa-id-card fa-fw"></i>
+            <span>&ensp;About</span>
+        </a>
+        
+        <a href="/archives">
+            <i class="fa-solid fa-box-archive fa-fw"></i>
+            <span>&ensp;Archives</span>
+        </a>
+        
+        <a href="/categories">
+            <i class="fa-solid fa-bookmark fa-fw"></i>
+            <span>&ensp;Categories</span>
+        </a>
+        
+        <a href="/tags">
+            <i class="fa-solid fa-tags fa-fw"></i>
+            <span>&ensp;Tags</span>
+        </a>
+        
+    </nav>
+    <nav id="mobile-menu">
+        <div class="title" @click="showMenuItems = !showMenuItems">
+            <i class="fa-solid fa-bars fa-fw"></i>
+            <span>&emsp;NWPU-ZAK</span>
+        </div>
+        <transition name="slide">
+            <div class="items" v-show="showMenuItems">
+                
+                <a href="/">
+                    <div class="item">
+                        <div style="min-width: 20px; max-width: 50px; width: 10%">
+                            <i class="fa-solid fa-house fa-fw"></i>
+                        </div>
+                        <div style="min-width: 100px; max-width: 150%; width: 20%">Home</div>
+                    </div>
+                </a>
+                
+                <a href="/about">
+                    <div class="item">
+                        <div style="min-width: 20px; max-width: 50px; width: 10%">
+                            <i class="fa-solid fa-id-card fa-fw"></i>
+                        </div>
+                        <div style="min-width: 100px; max-width: 150%; width: 20%">About</div>
+                    </div>
+                </a>
+                
+                <a href="/archives">
+                    <div class="item">
+                        <div style="min-width: 20px; max-width: 50px; width: 10%">
+                            <i class="fa-solid fa-box-archive fa-fw"></i>
+                        </div>
+                        <div style="min-width: 100px; max-width: 150%; width: 20%">Archives</div>
+                    </div>
+                </a>
+                
+                <a href="/categories">
+                    <div class="item">
+                        <div style="min-width: 20px; max-width: 50px; width: 10%">
+                            <i class="fa-solid fa-bookmark fa-fw"></i>
+                        </div>
+                        <div style="min-width: 100px; max-width: 150%; width: 20%">Categories</div>
+                    </div>
+                </a>
+                
+                <a href="/tags">
+                    <div class="item">
+                        <div style="min-width: 20px; max-width: 50px; width: 10%">
+                            <i class="fa-solid fa-tags fa-fw"></i>
+                        </div>
+                        <div style="min-width: 100px; max-width: 150%; width: 20%">Tags</div>
+                    </div>
+                </a>
+                
+            </div>
+        </transition>
+    </nav>
+</div>
+<transition name="fade">
+    <div id="menu-curtain" @click="showMenuItems = !showMenuItems" v-show="showMenuItems"></div>
+</transition>
+
+        <div id="main" :class="loading ? 'into-enter-from': 'into-enter-active'">
+            <div class="article">
+    <div>
+        <h1>低光照下的物体检测，零样本日夜域适应</h1>
+    </div>
+    <div class="info">
+        <span class="date">
+            <span class="icon">
+                <i class="fa-solid fa-calendar fa-fw"></i>
+            </span>
+            2026/1/8
+        </span>
+        
+        
+    </div>
+    
+    <div class="content" v-pre>
+        <h4 id="低光照下的物体检测零样本日夜域适应">低光照下的物体检测，零样本日夜域适应</h4>
+<span id="more"></span>
+<p>提出了一种叫DAI-Net的新方法，专门解决在光线很暗的图片里面识别物体。核心思想是剥离光照的影响，只关注物体本身的样子(颜色、纹理)。</p>
+<p>1、在低级视觉中重新审视Retinex理论，首先设计了一个<strong>反射率表示学习模块</strong>，通过<strong>精心设计的照明不变性增强策略</strong>来学习基于Retinex的图像中的照明不变性。</p>
+<p>2、然后引入了一个<strong>interchange-redecomposition-coherence过程</strong>，通过执行<strong>两个顺序的图像分解</strong>和<strong>引入重新分解的redecomposition损失</strong>来改进普通的Retinex图像分解过程。</p>
+<h4 id="da与zsda">DA与ZSDA：</h4>
+<figure>
+<img src="/images/image-20250924143037425.png" alt="image-20250924143037425">
+<figcaption aria-hidden="true">image-20250924143037425</figcaption>
+</figure>
+<p>FS是直接使用弱光图像和标签进行全面监督学习，本文在零镜头日夜域适应中进行，<strong>其中目标检测器在只有正常光照图像可用的源域中进行训练，并在没有提供图像的弱光目标域中进行评估</strong>。正常光照源域和弱光目标域之间的<strong>分歧源于照明变化及光照变化带来的破坏</strong>。</p>
+<p><strong>传统域适应
+(DA)</strong>：训练时，模型<strong>可以接触到</strong>目标域的数据（即使没有标签）
+。比如，模型会同时看到大量的正常光图片和一些<strong>真实的</strong>弱光图片，然后尝试去对齐这两个域的特征分布
+。</p>
+<p><strong>传统域泛化
+(DG)</strong>：训练时，模型<strong>完全不知道</strong>目标域是什么样子，一张目标域的图片都看不到
+。目标是让模型仅从源域（如正常光）学习，就能应对<strong>任何未知</strong>的新领域（可能是弱光、可能是雨天、也可能是大雾）
+。</p>
+<p>而<strong>本文的ZSDA</strong>：这是一种特殊情况。它像DG一样，<strong>无法接触到任何一张真实的弱光图片</strong>
+。但它又不像DG那样对目标域一无所知，它有一个明确的<strong>先验知识
+(Prior)</strong>：我知道我将要面对的未知领域是“<strong>黑暗场景</strong>”
+。</p>
+<p>所以ZSDA可以被看作是DA的一种特例
+。因为它<strong>“知道”目标域的性质</strong>（是黑暗），所以它不属于完全盲人摸象的DG。正是因为有了“目标是黑暗”这个先验知识，作者才<strong>有理由、有方向地</strong>去构建一个专门模拟黑暗的“Dark
+ISP”管线 。</p>
+<p>它承认“完全泛化到任意未知域”太难了，于是把问题简化为“从白天泛化到黑夜”。通过<strong>模拟合成</strong>这个已知的目标域，<strong>它给了模型一个具体的“靶子”来练习，从而能针对性地学到抵抗黑暗的能力。</strong></p>
+<h4 id="那么我们会想能不能不合成弱光图像呢因为我们并不能对复杂的成像过程完全模拟">1、那么我们会想能不能不合成弱光图像呢？因为我们并不能对复杂的成像过程完全模拟。</h4>
+<p>那就是纯粹的“域泛化”(DG)，<strong>完全不依赖任何合成的弱光图像。仅使用正常光图像进行训练，通过设计更强大的模型（比如引入因果推断），让模型自己从正常光图像中领悟出“什么是物体的本质”，从而获得抵抗一切未知环境变化的能力。</strong></p>
+<h4 id="这篇文章学习到的域不变特征是不是有偏的是不是对源域有依赖的">2、这篇文章学习到的域不变特征是不是有偏的？是不是对源域有依赖的？</h4>
+<p>相比于单纯在特征空间进行对齐的方法，<strong>本文的方法学到的不变特征“偏见”要小得多，因为它更接近于追求“因果性”</strong>，但可能仍未达到最理想的、完全无偏的状态。</p>
+<h5 id="为什么它的偏见更小">为什么它的偏见更小？</h5>
+<ol type="1">
+<li><p><strong>基于物理模型，而非单纯统计相关性</strong>：与那些让模型自己去特征空间里寻找任意“不变”模式的方法不同，本文从一开始就引入了<strong>Retinex物理理论</strong>作为指导
+。它要学习的目标——<strong>反射率
+(Reflectance)</strong>——在物理学定义上就是物体表面固有的、理论上光照不变的属性
+。这使得模型要学习的“不变特征”有物理意义作为根基，而不是一个纯粹的、可能碰巧在数据上成立的统计相关性。这非常接近于在寻找“<strong>因果特征</strong>”。</p>
+<p><strong>也就是说这个特征是目标固有的，有物理依据，是在物理层面可以学习到的，而不是一个抽象的任务特定的统计特征。</strong></p></li>
+<li><p><strong>巧妙的自监督约束</strong>：本文最具创新性的<strong>“交换-再分解-一致性”流程，是一种极其强大的约束
+。</strong>它在不断地“拷问”模型：“你学到的这个反射率真的和光照无关吗？如果真的无关，那为什么把它换到另一个光照环境下，再分解一次，得到的结果和你之前不一样了呢？”
+。<strong>这个过程迫使模型去学习一个在不同光照组合下都保持稳定和一致的反射率表示，</strong>极大地<strong>抑制了模型学习到依赖于光照的“伪不变”特征的可能性。</strong></p></li>
+</ol>
+<h5 id="那为什么它还是有偏的呢">那为什么它还是有偏的呢？</h5>
+<ol type="1">
+<li><strong>理论模型的局限性</strong>：Retinex理论本身也是对真实世界的一个<strong>简化模型</strong>
+。</li>
+<li><strong>“老师”的局限性</strong>：反射率解码器的学习，依赖于一个预训练的Retinex分解网络提供的<strong>“伪标签”</strong>
+。这个“老师”网络本身也不是完美的，它分解出的反射率可能也带有自身的误差和偏见。</li>
+</ol>
+<p>如果说“特征对齐”方法，是在黑暗中摸索，试图从一大堆特征里找到<strong>相关性最强、看起来最“不变”的那个</strong>（结果可能找到了“泥泞的靴印”），那么<strong>本文的方法，则是手里拿着一张“物理学藏宝图”（Retinex理论），去寻找那个被理论证明应该存在的宝藏（反射率）</strong>，并且在找到后还反复用“自洽性原则”（交换-再分解-一致性）来验证真伪。</p>
+<p>因此，本文学习到的“光照不变特征”<strong>具有更强的因果性基础和鲁棒性</strong>，相比之下<strong>偏见要小得多</strong>。它虽然可能因为理论和“老师”网络的不完美而无法达到“绝对无偏”的理想情况，但它无疑是在<strong>朝着正确的、基于物理和因果的道路上迈出的一大步</strong>。</p>
+<h4 id="retinex理论">Retinex理论</h4>
+<p>该理论假设，一张图片可以被分解成两个部分：</p>
+<p><strong>物体的真实样貌(Reflectance/反射图)：</strong>指物体本身的颜色、纹理等固有属性。比如一个红色的苹果，无论在阳光下还是在昏暗的灯光下，它“是红色的”这个属性不会变。<strong>这部分是稳定、不受光照影响的，也是我们希望学习的关键信息。</strong></p>
+<p><strong>环境的光照情况(illumination/光照图)：</strong>指光线是强是弱，是白光还是黄光。这个会随着环境剧烈变化。这部分是干扰信息，需要被忽略。</p>
+<p><strong>并且可以通过两者的元素相乘来重建图像。</strong>图像可以通过两种主要方式增强：使用反射图作为增强图像，或使用调整的光照图重建增强图像。</p>
+<p><strong>该理论假设图像的可见性受到光照的影响，而反射率保持不变。</strong></p>
+<p>所以目标就是让模型能够从任何图片中精准地把“物体的真实样貌(反射图)”给提取出来，然后基于这个稳定的信息去识别物体。</p>
+<h4 id="创新">创新</h4>
+<p>一、准备训练数据，给定来自源域的正常光照的图像，<strong>首先利用受物理启发的低照明合成方法生成合成的弱光图像，并与原始正常光照的图像形成图像对。</strong></p>
+<p>二、<strong>将弱光图像分解为域不变（即图像反射率）和域特定（即图像光照）信息</strong>来重新审视低级视觉中的Retinex理论，以完成高级检测任务，<strong>仅仅保留域不变（即图像反射率）来学习一个可泛化的检测器。</strong></p>
+<p>三、不是从零开始设计一个全新的目标检测模型，而是在一个成熟的模型基础上进行改造。</p>
+<p>在模型中加入了一个新模块：<strong>“反射表示学习模块”</strong>。这个模块的唯一任务就是：<strong>从输入的光照正常的图像和合成的弱光图像中，解码并提取出我们前面说的“物体的真实样貌(反射图)”，即与反射率相关的illumination-invariant
+information</strong></p>
+<p>为了教这个模块如何正确地分解，他们找来一个<strong>已经训练好的、专门做图像分解的网络(RetinexNet)
+当“老师”</strong>，<strong>让“老师”先给出参考答案(伪真值)，新模块照着学。并通过专门设计的照明不变性增强策略进行增强。</strong></p>
+<p>四、核心部分，交换-重分解-一致性流程。这个流程的目的是为了让模型提取出“物体样貌(反射图)”更加稳定和准确。</p>
+<p>1、第一次分解：拿一对“亮图A”和“暗图B”，分别分解出它们的“样貌”和“光照”</p>
+<p>亮图A -&gt; 样貌A + 光照A</p>
+<p>暗图B -&gt; 样貌B + 光照B</p>
+<p>2、交换重组：把样貌和光照交换一下，重新组合成两张新图片。<strong>互换分解后的正常光照和弱光照的反射率来重建图像。</strong></p>
+<p>新图C = <strong>样貌A</strong> + <strong>光照B</strong>
+(用亮图的物体配上暗图的光)</p>
+<p>新图D = <strong>样貌B</strong> + <strong>光照A</strong>
+(用暗图的物体配上亮图的光)</p>
+<p>3、第二次分解(重分解)：现在，让模型去分解这两张新造出来的图片C和D。</p>
+<p>新图C -&gt; 样貌C’ + 光照C’</p>
+<p>新图D -&gt; 样貌D’ + 光照D’</p>
+<p>4、要求一致（Coherence），<strong>引入一个重新分解的一致性损失，来使得两次分解中产生的反射率保持一致。</strong></p>
+<p>从新图C分解出的<strong>样貌C’</strong>，必须和最初的<strong>样貌A</strong>一模一样。</p>
+<p>从新图D分解出的<strong>样貌D’</strong>，必须和最初的<strong>样貌B</strong>一模一样。</p>
+<p>如果不一样，<strong>就通过一个“损失函数”（可以理解为一种惩罚机制）来惩罚模型，迫使它去调整学习，直到分解出的结果非常稳定准确。</strong></p>
+<p>设计了一个损失函数重分解一致性损失函数来保证两次分解得到的分解结果一致。</p>
+<h5 id="目标">目标：</h5>
+<p>通过两次分解来迫使模型学习到光照不变特征。第一次分解相当于老师教你做题，第二次分解是老师改编题让你做。</p>
+<p>最终达到：无论我怎么给你换光照（亮光、暗光、甚至把亮物体的光换给暗物体），你都必须认出这个物体本来的样子。你提取出的‘物体样貌’必须是恒定不变的。这样模型就能学会提取出非常纯粹、不受光照干扰的物体特征。</p>
+<h4 id="模型">模型：</h4>
+<figure>
+<img src="/images/image-20250924145901968.png" alt="image-20250924145901968">
+<figcaption aria-hidden="true">image-20250924145901968</figcaption>
+</figure>
+<p><strong>正常光照的源域和弱光目标域之间的差异主要是因为光照以及光照退化带来的破坏。</strong></p>
+<p>为了解决这一问题，作者专注于从能够超越目标域的源域中<strong>获取域不变表示，学习光照不变特征，即反射率表示。</strong></p>
+<p>在训练期间，该框架由所提出的 <strong>DArk-Illuminated</strong>
+<strong>Network（图中的绿色和黄色块）和预训练的Retinex分解网络（图中的灰色块）组成</strong>。两个网络的输入都是一对正常光照的源域图像和它的弱光图像，<strong>弱光图像由物理启发的弱光退化合成方法Dark
+ISP合成。</strong></p>
+<p>DArk-Illuminated
+Network（DAI-Net）建立在已有的目标检测器之上，引入了一个用于反射率表示学习的附加解码器。<strong>利用预训练的Retinex分解网络为该解码器提供伪真值</strong>。<strong>引入了interchange-redecomposition-coherence过程以进一步加强反射率表示学习</strong>。</p>
+<p>具体来看每个模块：</p>
+<h4 id="学习基于retinex的反射表示">学习基于Retinex的反射表示</h4>
+<p>根据Retinex理论，作者认为反射率对应于光照不变特征，有助于实现光照不变检测器。为此，作者设计了一个反射率表示学习模块。</p>
+<h5 id="把反射率表示学习模块放在网络结构的哪个部分接在backbone的浅层部分">1、把反射率表示学习模块放在网络结构的哪个部分？–接在backbone的浅层部分。</h5>
+<p>考虑到图像分解是一个<strong>底层视觉任务</strong>，作者把检测器backbone在第二个卷积层切开，把前面这部分称为<span class="math display"><em>g</em><sub><em>f</em></sub></span>。<span class="math display"><em>g</em><sub><em>f</em></sub></span>的输出特征F编码了由<strong>浅层网络提取的底层信息，非常适合用来解码反射率。</strong>像人的眼睛刚看到画面。它负责识别最基础、最底层的特征，比如<strong>边缘、角落、颜色块、纹理</strong>等。（而网络的深层像人的大脑开始思考。它把浅层的基础特征组合起来，形成更抽象、更高级的语义概念，比如“猫的眼睛”、“汽车的轮子”。）</p>
+<p>“反射率”这个东西，本质上是物体表面的颜色和纹理，这是一个<strong>底层物理属性</strong>。所以，要分析它，就应该用网络中负责处理<strong>底层信息</strong>的<strong>浅层特征</strong>。如果等到网络深层，这些原始的纹理和颜色信息已经被高度抽象成“猫”或“车”的概念了，反而丢失了计算反射率所需要的细节。</p>
+<p>所以把反射率解码器接在网络的浅层部分<span class="math display"><em>g</em><sub><em>f</em></sub></span>后面（如图中的黄色块），<strong>“在最合适的地方，用最合适的特征，做最合适的事”</strong>。</p>
+<p><strong>解码器是由两个Conv+ReLU层组成的模块</strong>，<strong>由于目标检测任务的检测头和反射率解码任务的解码器共享了<span class="math display"><em>g</em><sub><em>f</em></sub></span>这部分网络</strong>，当<span class="math display"><em>g</em><sub><em>f</em></sub></span>被优化训练的学会提取出不受光照干扰的、关于反射率的特征，<strong>目标检测任务也建立在这个网络之后，那么它自然而然的就继承了这种光照不变性，也能提取出光照不变特征，从而在黑暗环境中表现更好。</strong></p>
+<h5 id="如何训练这个反射率学习模块用一个专家网络当老师来提供伪真值">2、如何训练这个反射率学习模块？–用一个“专家网络”当老师来提供伪真值。</h5>
+<p>作者发现，让模型在学习物体检测的同时，‘顺便’去学习图像分解，这个过程很不稳定，有时候会失败。因此，作者借助一个<strong>预训练好的Retinex分解网络</strong>，来生成反射率和光照的<strong>伪真值(pseudo
+ground truth)</strong>，用一种更稳定的方式来监督我们的反射率解码器。</p>
+<p>作者一开始尝试了一个很直接的想法：“让模型（DAI-Net）成为一个全能天才，既要学会识别高层语义的‘物体’，又要学会分析底层像素的‘光照’和‘反射率’。”</p>
+<p>结果发现，这个想法太理想化了。<strong>“物体检测”和“图像分解”是两个难度和层级都完全不同的任务</strong>。“物体检测”是高层视觉任务，关心的是“这是什么？”；而“图像分解”是底层视觉任务，关心的是“这个像素的物理属性是什么？”。</p>
+<p>让一个模型同时从零开始学这两件截然不同的事，就像要求一个婴儿<strong>同时学习“走路”和“微积分”</strong>。两个任务会互相“打架”，梯度可能相互冲突，导致模型不知道该听谁的，最终哪个都学不好。这就是所谓的<strong>“不稳定”</strong>。</p>
+<p><strong>作者的解决方案非常务实：</strong>
+用一个教师模型来监督学习。</p>
+<ul>
+<li><strong>“预训练好的Retine-Net”</strong>：就是一个已经训练好的、专门负责图像分解的“<strong>专家网络</strong>”，我们可以把它看作是这个领域的“<strong>微积分老师</strong>”。</li>
+<li><strong>“伪真值”</strong>：让这个“专家老师”先对输入的图片进行分解，得到它认为正确的反射率和光照图。这个答案虽然不是100%完美的“真理”，但已经足够好了，<strong>可以使用这个伪真值作为监督信号。</strong></li>
+<li><strong>“更稳定的方式”</strong>：现在，DAI-Net中的反射率解码器任务就变简单了，它不再需要从零开始领悟物理规律，<strong>只需要模仿“教师模型”给出的伪真值即可</strong>。这种学习方式目标明确，过程稳定，效果更好。</li>
+</ul>
+<h5 id="光照不变增强策略">光照不变增强策略</h5>
+<p>作者进一步引入了一种光照不变性增强策略，从特征层面来增强检测器的光照不变性。<strong>用一种“强制拉近”的方法，逼迫模型对于同一张图的“正常光照”版本和“黑暗环境”版本，产生尽可能相似的内部特征。</strong></p>
+<ul>
+<li><strong>一对正常光照图像和合成的弱光图像之间的光照差异会导致不同的特征分布</strong>，当其输入模型时，它会产生两种完全不同的内部特征图<span class="math display"><em>F</em><sup><em>n</em></sup></span>和<span class="math display"><em>F</em><sup><em>l</em></sup></span>，就像你看一张清晰的照片和一张漆黑的照片，你的第一反映和关注点是完全不同的。但从根本上说，<strong>这两张图片描绘的是完全相同的内容和物体，这两个图像本质上具有相同的语义信息。</strong></li>
+<li>而目标是让模型学习光照不变性特征表示，即让它学习到无论光线如何变化，里面的猫还是那只猫。要实现这一点，就必须<strong>要求输入到反射率解码器中的来自<span class="math display"><em>g</em><sub><em>f</em></sub></span>的输出特征F在正常光照和弱光图像之间紧密对齐。</strong>也就是说要强迫模型在看到正常光照和弱光照图片时，其内部产生的特征<span class="math display"><em>F</em><sup><em>n</em></sup></span>和<span class="math display"><em>F</em><sup><em>l</em></sup></span>应该<strong>尽可能地相似或对齐。</strong></li>
+</ul>
+<p>作者通过设计一个<strong>相互特征对齐损失</strong>来显式匹配从<span class="math display"><em>g</em><sub><em>f</em></sub></span>中提取的光照良好<span class="math display"><em>F</em><sup><em>n</em></sup></span>和弱光特征<span class="math display"><em>F</em><sup><em>l</em></sup></span>：</p>
+<p><span class="math display"><em>L</em><sub><em>m</em><em>f</em><em>a</em></sub> = <em>K</em><em>L</em>(<em>F</em><sup><em>n</em></sup>||<em>F</em><sup><em>l</em></sup>) + <em>K</em><em>L</em>(<em>F</em><sup><em>l</em></sup>||<em>F</em><sup><em>n</em></sup>),</span></p>
+<p>KL散度是专门用来测量两个特征分布之间的差异有多大。如果两个特征分布完全一样，KL散度就是0。差异越大，KL散度值也越大。</p>
+<p>在训练时，这个惩罚项被加入到模型的总损失函数中。模型的目标是让总损失函数尽可能小。因此，它必须努力调整自己的参数，使得
+<span class="math display"><em>F</em><sup><em>n</em></sup></span>和<span class="math display"><em>F</em><sup><em>l</em></sup></span>​之间的差异尽可能小，从而让这个惩罚项也尽可能地接近0。<strong>为了避免被惩罚，模型被迫学会忽略光照带来的表面差异，转而专注于图中不变的核心内容，从而在特征层面实现了“光照不变性”。</strong></p>
+<h4 id="interchange-redecomposition-coherence">Interchange-Redecomposition-Coherence</h4>
+<p>为了进一步增强反射率学习，作者设计一个更强的图像分解过程。</p>
+<ul>
+<li>给定一对弱光图像<span class="math display"><em>I</em><sup><em>l</em></sup></span>和正常光照的图像<span class="math display"><em>I</em><sup><em>n</em></sup></span>，<strong>通过一次基于Retinex的图像分解过程将它们分解成相应的反射率和光照</strong>，即来自于<span class="math display"><em>I</em><sup><em>l</em></sup></span>的弱光反射率<span class="math display"><em>R</em><sub>1</sub><sup><em>l</em></sup></span>和光照信息<span class="math display"><em>L</em><sup><em>l</em></sup></span>以及来自于<span class="math display"><em>I</em><sup><em>n</em></sup></span>的正常光照反射率<span class="math display"><em>R</em><sub>1</sub><sup><em>n</em></sup></span>和光照信息<span class="math display"><em>I</em><sup><em>n</em></sup></span>。</li>
+<li><strong>反射率<span class="math display"><em>R</em><sub>1</sub><sup><em>l</em></sup></span>和<span class="math display"><em>R</em><sub>1</sub><sup><em>n</em></sup></span>（它们在理想情况下应该是相同的）应该是相互可互换的，当与相应的光照图<span class="math display"><em>L</em><sup><em>n</em></sup>, <em>L</em><sup><em>l</em></sup></span>结合时，应该可以重建<span class="math display"><em>I</em><sup><em>n</em></sup>, <em>I</em><sup><em>l</em></sup></span>。</strong></li>
+</ul>
+<p>所以根据这种互换性，<strong>我们可以添加一个约束来加强图像分解和反射率表示学习</strong>。</p>
+<p>一种直观的方法是：通过互换反射率重建得到图像之后，一旦它们偏离原始输入，我们就对它施加惩罚，这是一个普通的惩罚损失约束。<strong>而这里为了充分利用图像分解中产生的信息，作者提出了一个interchange-redecomposition-coherence过程，</strong>如图右侧所示。</p>
+<ul>
+<li>首先，我们在光线充足和光线不足的图像之间交换反射率，并将图像重建为<span class="math display"><em>I</em><sub>2</sub><sup><em>l</em></sup> = <em>R</em><sub>1</sub><sup><em>n</em></sup> ⋅ <em>L</em><sup><em>l</em></sup>, <em>I</em><sub>2</sub><sup><em>n</em></sup> = <em>R</em><sub>1</sub><sup><em>l</em></sup> ⋅ <em>L</em><sup><em>n</em></sup>.</span></li>
+<li>然后重建的图像进行第二轮分解。</li>
+<li><strong>由于DAI-Net的重点是学习图像的光照不变部分（反射率）</strong>，所以作者使用DAI-Net中与第一轮分解相同的反射率解码分支<strong>从<span class="math display"><em>I</em><sub>2</sub><sup><em>n</em></sup>, <em>I</em><sub>2</sub><sup><em>l</em></sup></span>分解反射率<span class="math display"><em>R</em><sub>2</sub><sup><em>n</em></sup>, <em>R</em><sub>2</sub><sup><em>l</em></sup></span>，并要求它们和第一次分解中得到的相应的反射率<span class="math display"><em>R</em><sub>1</sub><sup><em>l</em></sup>, <em>R</em><sub>1</sub><sup><em>n</em></sup></span>一致。</strong></li>
+</ul>
+<p>因此，作者引入了重分解一致性损失：</p>
+<p><span class="math display"><em>L</em><sub><em>r</em><em>c</em></sub> = ||<em>R</em><sub>1</sub><sup><em>n</em></sup> − <em>R</em><sub>2</sub><sup><em>l</em></sup>||<sub>1</sub> + ||<em>R</em><sub>1</sub><sup><em>l</em></sup> − <em>R</em><sub>2</sub><sup><em>n</em></sup>||<sub>1</sub></span></p>
+<p>与先前那种常规的、比较简单的惩罚损失相比，<span class="math display"><em>L</em><sub><em>r</em><em>c</em></sub></span>引入了一个再分解的过程，从而更充分地利用了反射率的可交换性这一特性。</p>
+<h4 id="模型训练">模型训练：</h4>
+<h5 id="retinex分解网络">1、Retinex分解网络。</h5>
+<p>Retinex分解网络是一个现成的网络，可以基于任何图像分解网络。可以从头开始训练这个网络，也可以直接加载公开可用的预训练权重。</p>
+<p><strong>然后，将其冻结，仅在DAI-Net学习期间推断输入的反射率和光照作为伪真值<span class="math display">{<em>R̂</em>, <em>L̂</em>}</span>。</strong>完美的伪标签不是实现良好检测性能的必要条件。</p>
+<h5 id="dai-net">2、DAI-Net。</h5>
+<p><strong>DAI-Net由检测分支和反射率解码分支组成。对于前者，作者利用所选检测器的检测损失<span class="math display"><em>L</em><sub><em>d</em><em>e</em><em>t</em></sub></span>。</strong></p>
+<p>而反射率解码分支的目标函数总结为三个部分。第一部分由<strong>相互特征对齐损失和重分解损失</strong><span class="math display"><em>L</em><sub><em>m</em><em>f</em><em>a</em></sub>, <em>L</em><sub><em>r</em><em>c</em></sub></span>组成。另外两个部分是：</p>
+<ol type="1">
+<li><p><strong>反射学习损失。</strong></p>
+<ul>
+<li>作者通过一个反射率学习损失<span class="math display"><em>L</em><sub><em>r</em><em>e</em><em>f</em></sub></span>来监督反射率解码器的输出<span class="math display"><em>R</em><sub></sub></span>，具体来说是<strong>用一个预训练网络生成的伪真值<span class="math display"><em>R̂</em></span>来指导<span class="math display"><em>R</em></span>的学习</strong>。该损失函数由两部分组成：
+<ul>
+<li>平均绝对误差（MAE）</li>
+<li>结构相似性指数（SSIM）</li>
+</ul></li>
+<li>在实际操作中，这个监督过程分别<strong>对低光照图像对<span class="math display"><em>R</em><sup><em>l</em></sup>, <em>R̂</em><sup><em>l</em></sup></span>和正常光照图像对<span class="math display"><em>R</em><sup><em>n</em></sup>, <em>R̂</em><sup><em>n</em></sup></span>进行。</strong></li>
+</ul></li>
+<li><p><strong>图像分解损失。</strong></p>
+<ul>
+<li><p>为了进一步加强反射率的学习，作者还引入了“图像分解损失” <span class="math display"><em>L</em><sub><em>d</em><em>e</em><em>c</em><em>o</em><em>m</em></sub></span>，它作用于<strong>模型预测的反射率<span class="math display"><em>R</em></span>和伪真值中的光照<span class="math display"><em>L̂</em></span></strong></p></li>
+<li><p>具体来说，这个损失函数是以下三部分的组合：</p>
+<ul>
+<li>图像重建损失<span class="math display"><em>L</em><sub><em>r</em><em>e</em><em>c</em><em>o</em><em>n</em></sub></span>，<strong>这个损失要求模型预测的反射率<span class="math display"><em>R</em></span>乘以伪真值中的光照 <span class="math display"><em>L̂</em></span>后，能够还原出原始的输入图像 <span class="math display"><em>I</em></span></strong> 。具体来说，<strong>就是
+<span class="math display"><em>R</em><sup><em>l</em></sup> ⋅ <em>L̂</em><sup><em>l</em></sup></span>要能还原出低光图像<span class="math display"><em>I</em><sup><em>l</em></sup></span>，而<span class="math display"><em>R</em><sup><em>n</em></sup> ⋅ <em>L̂</em><sup><em>n</em></sup></span>要能还原出正常光图像<span class="math display"><em>I</em><sup><em>n</em></sup></span>。</strong></li>
+<li>不变反射率损失<span class="math display"><em>L</em><sub><em>i</em><em>r</em></sub></span>，<strong>这个损失在配对的正常光与低光图像之间进行计算
+。它通过均方误差(MSE)和结构相似性指(SSIM)相结合的方式，强制要求模型预测出的正常光反射率
+<span class="math display"><em>R</em><sup><em>n</em></sup></span>和低光反射率
+<span class="math display"><em>R</em><sup><em>l</em></sup></span>必须保持一致
+。</strong></li>
+<li>光照平滑度损失<span class="math display"><em>L</em><sub><em>s</em><em>m</em><em>o</em><em>o</em><em>t</em><em>h</em></sub></span>，这个损失也在配对的输入之间计算。</li>
+</ul></li>
+<li><p>因此，总的图像分解损失函数为：<span class="math display"><em>L</em><sub><em>d</em><em>e</em><em>c</em><em>o</em><em>m</em></sub> = <em>L</em><sub><em>r</em><em>e</em><em>c</em><em>o</em><em>n</em></sub> + <em>λ</em><sub><em>s</em><em>m</em><em>o</em><em>o</em><em>t</em><em>h</em></sub><em>L</em><sub><em>s</em><em>m</em><em>o</em><em>o</em><em>t</em><em>h</em></sub> + <em>λ</em><sub><em>i</em><em>r</em></sub><em>L</em><sub><em>i</em><em>r</em></sub></span></p>
+<p>其中，<span class="math display"><em>λ</em><sub><em>s</em><em>m</em><em>o</em><em>o</em><em>t</em><em>h</em></sub></span>和
+<span class="math display"><em>λ</em><sub><em>i</em><em>r</em></sub></span>分别对应损失项的权重系数。</p></li>
+</ul></li>
+</ol>
+<h4 id="dai-net的总目标函数可以表述为">DAI-Net的总目标函数可以表述为：</h4>
+<p><span class="math display"><em>L</em> = <em>L</em><sub><em>d</em><em>e</em><em>t</em></sub> + <em>λ</em><sub><em>m</em><em>f</em><em>a</em></sub><em>L</em><sub><em>m</em><em>f</em><em>a</em></sub> + <em>λ</em><sub><em>r</em><em>c</em></sub><em>L</em><sub><em>r</em><em>c</em></sub> + <em>L</em><sub><em>r</em><em>e</em><em>f</em></sub> + <em>L</em><sub><em>d</em><em>e</em><em>c</em><em>o</em><em>m</em></sub></span></p>
+<p>其中<span class="math display"><em>λ</em><sub><em>m</em><em>f</em><em>a</em></sub></span>指的是相互特征对齐损失的损失权重，<span class="math display"><em>λ</em><sub><em>r</em><em>c</em></sub></span>指的是再分解一致性损失的损失权重。</p>
+<h4 id="梳理">梳理</h4>
+<p><span class="math display"><em>L</em><sub><em>m</em><em>f</em><em>a</em></sub></span>是特征对齐损失，是对于解码之前的输入特征的损失函数，确保配对正常光照图像和弱光照图像的解码输入特征一致。强制让同一内容在不同光照下的特征表达保持一致。</p>
+<p><span class="math display"><em>L</em><sub><em>r</em><em>c</em></sub></span>是重分解一致性损失，确保模型学习得到反射率与光照真的无关。这个损失函数是通过一个巧妙的“自我检查”机制来达成这个目的的。它不仅要求反射率与光照无关，还要求这个“无关性”是<strong>稳定、自洽</strong>的。它通过“交换-再分解”流程，检验模型预测出的反射率是否具有可替换性，从而保证了其“不变性”的质量。</p>
+<p><span class="math display"><em>L</em><sub><em>r</em><em>e</em><em>c</em><em>o</em><em>n</em></sub></span>​是重建损失，<strong>确保模型预测出的反射率
+R
+是一个“有效”且“正确”的图像组成部分。确保R作为一个“零件”，能够和另一个零件L完美地“组装”回原来的整体I。</strong></p>
+<p>这可以有效防止模型“偷懒”。比如，模型可能会发现，预测一张纯灰色的图像作为反射率R，在其他某些损失上可能得分不低。但这张纯灰色的R，乘以光照图<span class="math display"><em>L̂</em></span>后，是绝对不可能还原出原始图像I的。因此，<strong><span class="math display"><em>L</em><sub><em>r</em><em>e</em><em>c</em><em>o</em><em>n</em></sub></span>会给这种“偷懒”行为一个巨大的惩罚，迫使模型去预测一个真正能够构成原始图像的、有意义的反射率。</strong></p>
+<p><span class="math display"><em>L</em><sub><em>i</em><em>r</em></sub></span>是不变反射率损失，确保配对正常光照图像和弱光照图像的反射率一致。这是在最终的输出层面（反射率图像），直接要求两个版本的反射率图长得一模一样。</p>
+<h4 id="实验">实验：</h4>
+<p>特征可视化部分比较有意思</p>
+<p>从给定图像的人脸检测模型中的<span class="math display"><em>g</em><sub><em>f</em></sub></span>中提取骨干特征；然后通过应用通道平均将特征转换为单通道映射。</p>
+<figure>
+<img src="/images/image-20250924220358389.png" alt="image-20250924220358389">
+<figcaption aria-hidden="true">image-20250924220358389</figcaption>
+</figure>
+<p>还<strong>可视化了LOL
+v2数据集上的真实配对的光线充足和光线不足的图像上，以观察它们的反射率一致性</strong>。与DSFD相比，<strong>作者的特征图在极低光线环境中捕获了更清晰、更详细的物体信息</strong>。</p>
+<h5 id="特征通道可视化">特征通道可视化。</h5>
+<figure>
+<img src="/images/image-20250924220541765.png" alt="image-20250924220541765">
+<figcaption aria-hidden="true">image-20250924220541765</figcaption>
+</figure>
+<p>从所有<span class="math display"><em>g</em><sub><em>f</em></sub></span>特征中计算每个特征通道的平均幅度。<strong>在WIDER
+FACE上训练的DSFD中，光线充足和光线不足的图像的特征通道的平均幅度彼此不对齐。与光线充足的特征相比，一些弱光特征通道被抑制。</strong>这说明了从特征通道的角度来看，光照变化如何去影响检测器。在DAI-Net中，两个集合的相对平均幅度是一致的，验证了作者的网络学习到的光照不变信息不会随着照明而变化。</p>
+<figure>
+<img src="/images/image-20250924220809383.png" alt="image-20250924220809383">
+<figcaption aria-hidden="true">image-20250924220809383</figcaption>
+</figure>
+<h4 id="消融实验">消融实验：</h4>
+<figure>
+<img src="/images/image-20250928214724230.png" alt="image-20250928214724230">
+<figcaption aria-hidden="true">image-20250928214724230</figcaption>
+</figure>
+<p>基线是普通的DSFD模型，DISP是使用Dark
+ISP来合成弱光图像。RD列中R表示加入反射率解码分支。</p>
+<ul>
+<li><p>表中前两行，<strong>第一行是使用原始的DSFD模型，在真实的、光照充足的白天数据集（WIDER
+FACE）上进行训练，然后直接拿到真实的弱光数据集（DARK
+FACE）上进行测试得到的结果，第二行是使用Dark
+ISP合成弱光图像之后，用合成的夜晚数据去训练DSFD模型，再拿到夜晚的真实数据中去测试，</strong>会发现直接对合成图像进行训练会使DSFD的精度从15.2%下降到11.6%，<strong>这意味着合成的弱光图像与真实的弱光数据具有不同的属性。</strong>合成数据和真实数据之间存在“域差异”</p>
+<ul>
+<li>也就是说<strong>正常光照 vs
+真实弱光</strong>存在域差异，<strong>合成弱光 vs
+真实弱光</strong>同样存在域差异。那么，为什么还要引入“合成弱光”这个中间商，而不是直接只用正常光照图像来学习分解呢？
+<ul>
+<li><strong>因为DAI-Net中那些最强大、最关键的物理约束损失，必须要有“光照变化”这个参照物才能计算，而“合成弱光数据”正是为了在训练中可控地、成对地制造出这种“光照变化”。</strong></li>
+<li>如果没有弱光图像，DAI-Net的哪些损失会直接失效？
+<ul>
+<li><strong>反射一致性损失 (Invariant Reflectance Loss, <span class="math display"><em>L</em><sub><em>i</em><em>r</em></sub></span>)</strong>
+<ul>
+<li><strong>作用</strong>：强制模型为“白天的照片”和“夜晚的照片”提取出<strong>同一个</strong>反射分量R。</li>
+<li><strong>计算方式</strong>：<code>MSE(R_light, R_dark)</code>，直接比较白天反射图和夜晚反射图的差异。</li>
+<li><strong>依赖性</strong>：<strong>必须</strong>同时拥有<code>R_light</code>和<code>R_dark</code>才能计算。如果只有白天的正常光照图，这个损失就无从谈起，模型也就无法学习到“光照不变性”。</li>
+</ul></li>
+<li><strong>互特征对齐损失 (Mutual Feature Alignment Loss, <span class="math display"><em>L</em><sub><em>m</em><em>f</em><em>a</em></sub></span>)</strong>
+<ul>
+<li><strong>作用</strong>：在特征层面拉近白天和夜晚图像的距离。</li>
+<li><strong>计算方式</strong>：<span class="math display"><em>K</em><em>L</em>(<em>F</em><sub><em>l</em><em>i</em><em>g</em><em>h</em><em>t</em></sub>||<em>F</em><sub><em>d</em><em>a</em><em>r</em><em>k</em></sub>) + <em>K</em><em>L</em>(<em>F</em><sub><em>d</em><em>a</em><em>r</em><em>k</em></sub>||<em>F</em><sub><em>l</em><em>i</em><em>g</em><em>h</em><em>t</em></sub>)</span>，计算白天特征和夜晚特征之间的KL散度。</li>
+<li><strong>依赖性</strong>：<strong>必须</strong>同时拥有白天特征<code>F_light</code>和夜晚特征<code>F_dark</code>。如果只有白天图，这个损失也无法计算。</li>
+</ul></li>
+<li><strong>重分解一致性损失 (Redecomposition Cohering Loss, <span class="math display"><em>L</em><sub><em>r</em><em>c</em></sub></span>)</strong>
+<ul>
+<li><strong>作用</strong>：这是DAI-Net最核心的创新，通过一个精巧的交叉验证来保证分解的鲁棒性。</li>
+<li><strong>计算方式</strong>：它的第一步就是“<strong>交换
+(Interchange)</strong>”，即把白天图像的反射<code>R_light</code>和夜晚图像的光照<code>I_dark</code>相乘。</li>
+<li><strong>依赖性</strong>：这个过程的<strong>起点</strong>就需要同时拿到白天和夜晚的分解结果。如果缺少任何一方，整个精巧的约束流程就无法启动。</li>
+</ul></li>
+</ul></li>
+<li>为什么不能只用正常光照图像?
+<ul>
+<li>从一张单独的正常光照图像中分解光照和反射，是一个<strong>病态问题（ill-posed
+problem）</strong>，<strong>理论上有无限多种分解组合都能重建出原图（比如，你可以让反射亮一倍，同时让光照暗一倍，乘积不变）。</strong>
+<ul>
+<li><strong>如果没有“变化”作为参照</strong>：只给模型看白天的图像，<strong>它没有动力去学习一个有意义的分解。它很可能会学到一个最简单的“平凡解”</strong>，比如直接让光照分量L恒等于1，然后让反射分量R就等于原始图像。这样的分解没有任何泛化能力。</li>
+<li><strong>“合成数据”的作用</strong>：通过DarkISP，我们可以为每一张白天图像，<strong>生成一个与之内容完全相同、但光照条件不同的“孪生兄弟”</strong>。有了这对“孪生兄弟”，上述那些强大的损失函数就有了用武之地。模型在对比中学习，才能真正理解：“哦，原来当光线从L_light变为L_dark时，R是那个应该保持不变的东西”。</li>
+</ul></li>
+</ul></li>
+</ul></li>
+<li>所以作者选择了一种<strong>两害相权取其轻</strong>的策略。相比于<strong>引入的合成弱光数据存在一定的域差异</strong>来说，<strong>完全没有弱光数据作为参照，导致模型无法学习到光照不变性这个核心概念，学到的分解是无意义的</strong>，这个弊处更大，<strong>从根本上堵死了通往域适应的道路</strong>。作者认为<strong>前者的小弊端是可以通过设计鲁棒的物理约束（如<span class="math inline">ℒ<sub><em>r</em><em>c</em></sub></span>）来缓解的</strong>。所以合成数据在这个框架中，是为了实现强大的物理约束而不得不引入的一个“必要的损失”。</li>
+</ul></li>
+<li><p>第三行是加入了反射率解码分支，性能大幅提升，<strong>添加反射率解码分支作为检测器的辅助有助于增强检测器中的光照不变信息，从而在不同的光照条件下实现更稳健的检测。</strong></p>
+<ul>
+<li><strong>要想让模型不受光照变化的影响，最好的办法就是让模型专门去学习如何提取出那个理论上光照不变的“物体本质”——也就是反射分量R。</strong>为了验证这一点，作者尝试了其他变体，比如<strong>在DAI-Net中添加用于解码光照（illumination）的辅助分支</strong>，或者<strong>添加用于同时解码反射（reflectance）和光照的辅助分支</strong>，（这两个实验）在表4的RD列中分别用L和R+L来表示。”
+<ul>
+<li><strong>实验变体一 (在表格中记为
+“L”)</strong>:修改了DAI-Net的结构，把那个专门解码反射分量R的辅助分支，改成了专门去解码<strong>光照分量L</strong>。测试一下，如果让模型不学习“物体本质”，而是去学习“光照情况”，对最终的检测结果有没有帮助。效果大幅降低</li>
+<li><strong>实验变体二 (在表格中记为
+“R+L”)</strong>:再次修改DAI-Net，让辅助分支<strong>同时学习解码反射分量R和光照分量L</strong>。测试一下，如果让模型学习一个“完整的分解任务”（既学物体又学光照），会不会比只学习“物体本质”这一个重点任务效果更好。效果仍然降低了一些。</li>
+</ul></li>
+<li>作者为了证明“只让模型学习提取反射分量R是最佳策略”这一核心观点，额外做了两个对比实验：一个版本让模型改去学光照L，另一个版本让模型同时学R和L。实验结果表明，这两个对比版本的检测性能都比不上作者最初的设计。这就有力地证明了，要想实现光照不变性，<strong>就应该让模型的辅助任务专一地、集中地学习反射分量R</strong>，任何试图学习光照分量L的额外操作，反而会对最终的检测任务产生干扰，效果更差。</li>
+</ul></li>
+<li><p>表的6-8行比较了<strong>重分解一致损失和普通惩罚损失在重分解过程中的有效性。</strong></p>
+<ul>
+<li>图像分解损失。首先<strong>用惩罚损失Lp来替换DAINet中的Lrc。就是说不加Lrc，而是用这个更简单的Lp，将mAP提高了1.3%到21.8%，这证明交叉重建促进了我们提取这个反射率</strong>
+<ul>
+<li>这里的这个Lp就是作者说的那个普通惩罚损失，<strong>“直观的方法是对使用交换后的反射分量所重建的图像进行惩罚，只要它们偏离了原始输入”</strong></li>
+<li>也就是说
+惩罚用<strong>夜晚的反射</strong>和<strong>白天的光照</strong>重建出一张“新的白天”图像和原始白天图像之间的差异，
+惩罚用<strong>白天的反射</strong>和<strong>夜晚的光照</strong>重建出一张“新的夜晚”图像和原始夜晚图像之间的差异，</li>
+<li>它背后的逻辑是：如果你的反射分量R真的是光照不变的，那么我把它换到另一个光照环境里，理应能完美地重建出那个环境下的图像。如果重建得不像，就说明你的分解有问题。</li>
+<li>这不就是代码里面那个交叉线重建损失`recon_loss_mutal_low/high吗</li>
+</ul></li>
+<li>重分解一致性损失，<strong>DP列下的Lrc表示在训练期间利用重分解一致性损失，而不用Lp损失</strong>。性能从20.5%提高到22.3%，<strong>优于图像分解损失</strong>。这是因为<strong>我们通过约束重新分解和再次分解的结果充分利用了反射率互换性。</strong></li>
+<li>可以同时使用两种损失。表中的结果显示几乎没有改善<strong>，这表明分解损失的提升基本上可以被重分解一致性损失所覆盖。</strong></li>
+<li>更多的重新分解。作者也尝试过实现三次分解。性能几乎没有提高。考虑到计算效率，作者坚持两次分解。</li>
+</ul></li>
+<li><p>Lmfa列表示使用相互特征对齐损失。<strong>在浅层网络的特征施加光照不变性的约束。</strong>作者展示了使用KL-散度作为Lmfa将mAP从22.3%增加到23.5%，这验证了它的有效性。</p>
+<ul>
+<li>L1和L2表示进一步用L1和L2距离代替KL散度。<strong>性能有所降低，因为它们的约束要更强一些。</strong></li>
+</ul></li>
+<li><p>当反射率解码器附加在backbone<strong>的第M个conv层之后并且它由N个conv层组成时，性能最佳。M和N都默认设置为2。</strong>在这里，作者对不同的M和N进行参数消融实验。</p>
+<figure>
+<img src="/images/image-20250928221803559.png" alt="image-20250928221803559">
+<figcaption aria-hidden="true">image-20250928221803559</figcaption>
+</figure></li>
+<li><p>首先N不变，对不同的M进行实验。结果表明，增加或减少M都会略微降低性能，M=2表现最好。</p></li>
+<li><p>然后将M固定为2并改变N的值，以确定更大的N是否有利于反射率解码器。当N增加时，性能实际上会下降。默认的N=2表现最好。</p>
+<figure>
+<img src="/images/image-20250928222207200.png" alt="image-20250928222207200">
+<figcaption aria-hidden="true">image-20250928222207200</figcaption>
+</figure></li>
+<li><p>RetinexForm代替Retinex分解网络。<strong>RetinexForm通过Transformer架构显式地模拟反射率和光照贴图中的噪声，从而可以分解得到比本文中使用的原始RetinexNet更鲁棒的伪真值</strong>。替换之后性能得到提升。<strong>这说明了作者的方法是个通用框架，可以更换更强的分解网络。</strong></p></li>
+<li><p><strong>反射率解码损失的有效性分析。</strong>为了优化反射率解码器，作者还添加了反射率学习损失Lref和图像分解损耗Ldecom。<strong>作者将这些损失依次添加到基线中来进行了消融实验。每个损失的使用都对整体性能有明显的贡献。</strong></p>
+<figure>
+<img src="/images/image-20250928222309121.png" alt="image-20250928222309121">
+<figcaption aria-hidden="true">image-20250928222309121</figcaption>
+</figure></li>
+<li><p>更多关于重分解一致性损失的结果。作者改变了重分解一致性损失的损失权重<span class="math display"><em>λ</em><sub><em>r</em><em>c</em></sub></span>。<strong>从0.0001到1改变<span class="math display"><em>λ</em><sub><em>r</em><em>c</em></sub></span></strong>，可以看到使用重分解一致性损失与不使用它相比始终显示出更好的性能（不使用这个损失的时候mAP为20.5）。<strong><span class="math display"><em>λ</em><sub><em>r</em><em>c</em></sub> = 0.001</span>时效果最好。</strong></p>
+<figure>
+<img src="/images/image-20250928222438169.png" alt="image-20250928222438169">
+<figcaption aria-hidden="true">image-20250928222438169</figcaption>
+</figure></li>
+</ul>
+<h4 id="总结">总结</h4>
+<h5 id="优点和创新点"><strong>优点和创新点：</strong></h5>
+<ol type="1">
+<li><strong>物理理论与深度学习的精妙结合</strong>：文章没有满足于简单地在特征层面做文章，而是深入到了图像构成的物理本质（Retinex理论），使得模型学习到的不变性有很强的物理解释和理论支撑。</li>
+<li><strong>“交换-再分解-一致性”是最大亮点</strong>：这个自监督流程非常新颖，它不依赖任何额外的标注，仅凭“反射率应该不变”这一先验知识，就构建了一个强大的约束来优化网络。这种“自洽性”或“一致性”的约束是近年来计算机视觉领域一个重要的思想，本文是其非常精彩的应用。</li>
+</ol>
+<h5 id="潜在的讨论点或局限性"><strong>潜在的讨论点或局限性：</strong></h5>
+<ol type="1">
+<li><strong>对合成方法（Dark
+ISP）的依赖</strong>：整个框架的成功，始于能够生成高质量的、物理逼真的配对数据。这意味着，模型的性能上限在一定程度上受限于所使用的“Dark
+ISP”合成方法的真实性。如果合成数据与真实世界的某些低光伪影（如特定类型的炫光、运动模糊）仍有差距，模型的泛化能力可能会受到影响。</li>
+<li><strong>对伪标签网络（RetinexNet）的依赖</strong>：反射率解码器的学习效果，依赖于一个预训练的Retinex分解网络提供的“伪真值”
+。虽然作者在补充材料中证明了换用更好的分解网络能带来性能提升
+，但这也说明DAI-Net的性能与这个“老师”网络的能力是绑定的。</li>
+<li><strong>方法的复杂性</strong>：相比于一些端到端的域适应方法，DAI-Net的训练流程相对复杂，包含了数据合成、预训练网络、多个自定义损失函数和超参数（如各种<span class="math inline"><em>λ</em></span>权重）
+。这可能会增加复现和调试的难度。</li>
+</ol>
+
+    </div>
+    
+    
+    
+    
+    
+    
+    
+</div>
+
+            <footer id="footer">
+    <div id="footer-wrap">
+        <div>
+            &copy;
+            2022 - 2026 NWPU-ZAK
+            <span id="footer-icon">
+                <i class="fa-solid fa-font-awesome fa-fw"></i>
+            </span>
+            &commat;Zang Ankang
+        </div>
+        <div>
+            Based on the <a target="_blank" rel="noopener" href="https://hexo.io">Hexo Engine</a> &amp;
+            <a target="_blank" rel="noopener" href="https://github.com/theme-particlex/hexo-theme-particlex">ParticleX Theme</a>
+        </div>
+        
+    </div>
+</footer>
+
+        </div>
+        
+        <transition name="fade">
+            <div id="preview" ref="preview" v-show="previewShow">
+                <img id="preview-content" ref="previewContent" />
+            </div>
+        </transition>
+        
+    </div>
+    <script src="/js/main.js"></script>
+    
+    
+
+
+
+
+    
+</body>
+</html>

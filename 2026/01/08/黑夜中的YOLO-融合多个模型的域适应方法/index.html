@@ -1,0 +1,467 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>黑夜中的YOLO-融合多个模型的域适应方法 | NWPU-ZAK</title>
+    <meta name="author" content="Zang Ankang" />
+    <meta name="description" content="兄弟们，一定要出人头地啊" />
+    <meta name="keywords" content="" />
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0"
+    />
+    <link rel="icon" href="/images/avatar.jpg" />
+    <link rel="preconnect" href="https://s4.zstatic.net" />
+<script src="https://s4.zstatic.net/ajax/libs/vue/3.3.7/vue.global.prod.min.js"></script>
+<link rel="stylesheet" href="https://s4.zstatic.net/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
+<link rel="preconnect" href="https://fonts.googleapis.cn" />
+<link rel="preconnect" href="https://fonts.gstatic.cn" crossorigin />
+<link
+    rel="stylesheet"
+    href="https://fonts.googleapis.cn/css2?family=Fira+Code:wght@400;500;600;700&family=Lexend:wght@400;500;600;700;800;900&family=Noto+Sans+SC:wght@400;500;600;700;800;900&display=swap"
+/>
+<script> const mixins = {}; </script>
+
+<script src="https://polyfill.alicdn.com/v3/polyfill.min.js?features=default"></script>
+
+
+<script src="https://s4.zstatic.net/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script src="https://s4.zstatic.net/ajax/libs/highlightjs-line-numbers.js/2.8.0/highlightjs-line-numbers.min.js"></script>
+<link
+    rel="stylesheet"
+    href="https://s4.zstatic.net/ajax/libs/highlight.js/11.9.0/styles/github.min.css"
+/>
+<script src="/js/lib/highlight.js"></script>
+
+
+
+<script src="/js/lib/preview.js"></script>
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/css/main.css" />
+
+<meta name="generator" content="Hexo 7.3.0"><style>mjx-container[jax="SVG"] {
+  direction: ltr;
+}
+
+mjx-container[jax="SVG"] > svg {
+  overflow: visible;
+}
+
+mjx-container[jax="SVG"][display="true"] {
+  display: block;
+  text-align: center;
+  margin: 1em 0;
+}
+
+mjx-container[jax="SVG"][justify="left"] {
+  text-align: left;
+}
+
+mjx-container[jax="SVG"][justify="right"] {
+  text-align: right;
+}
+
+g[data-mml-node="merror"] > g {
+  fill: red;
+  stroke: red;
+}
+
+g[data-mml-node="merror"] > rect[data-background] {
+  fill: yellow;
+  stroke: none;
+}
+
+g[data-mml-node="mtable"] > line[data-line] {
+  stroke-width: 70px;
+  fill: none;
+}
+
+g[data-mml-node="mtable"] > rect[data-frame] {
+  stroke-width: 70px;
+  fill: none;
+}
+
+g[data-mml-node="mtable"] > .mjx-dashed {
+  stroke-dasharray: 140;
+}
+
+g[data-mml-node="mtable"] > .mjx-dotted {
+  stroke-linecap: round;
+  stroke-dasharray: 0,140;
+}
+
+g[data-mml-node="mtable"] > svg {
+  overflow: visible;
+}
+
+[jax="SVG"] mjx-tool {
+  display: inline-block;
+  position: relative;
+  width: 0;
+  height: 0;
+}
+
+[jax="SVG"] mjx-tool > mjx-tip {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+mjx-tool > mjx-tip {
+  display: inline-block;
+  padding: .2em;
+  border: 1px solid #888;
+  font-size: 70%;
+  background-color: #F8F8F8;
+  color: black;
+  box-shadow: 2px 2px 5px #AAAAAA;
+}
+
+g[data-mml-node="maction"][data-toggle] {
+  cursor: pointer;
+}
+
+mjx-status {
+  display: block;
+  position: fixed;
+  left: 1em;
+  bottom: 1em;
+  min-width: 25%;
+  padding: .2em .4em;
+  border: 1px solid #888;
+  font-size: 90%;
+  background-color: #F8F8F8;
+  color: black;
+}
+
+foreignObject[data-mjx-xml] {
+  font-family: initial;
+  line-height: normal;
+  overflow: visible;
+}
+
+.MathJax path {
+  stroke-width: 3;
+}
+
+mjx-container[display="true"] {
+  overflow: auto hidden;
+}
+
+mjx-container[display="true"] + br {
+  display: none;
+}
+</style></head>
+<body>
+    <div id="layout">
+        <transition name="fade">
+            <div id="loading" v-show="loading">
+                <div id="loading-circle">
+                    <h2>LOADING</h2>
+                    <p>加载过慢请开启缓存 浏览器默认开启</p>
+                    <img src="/images/loading.gif" />
+                </div>
+            </div>
+        </transition>
+        <div id="menu" :class="{ hidden: hiddenMenu, 'menu-color': menuColor}">
+    <nav id="desktop-menu">
+        <a class="title" href="/">
+            <span>NWPU-ZAK</span>
+        </a>
+        
+        <a href="/">
+            <i class="fa-solid fa-house fa-fw"></i>
+            <span>&ensp;Home</span>
+        </a>
+        
+        <a href="/about">
+            <i class="fa-solid fa-id-card fa-fw"></i>
+            <span>&ensp;About</span>
+        </a>
+        
+        <a href="/archives">
+            <i class="fa-solid fa-box-archive fa-fw"></i>
+            <span>&ensp;Archives</span>
+        </a>
+        
+        <a href="/categories">
+            <i class="fa-solid fa-bookmark fa-fw"></i>
+            <span>&ensp;Categories</span>
+        </a>
+        
+        <a href="/tags">
+            <i class="fa-solid fa-tags fa-fw"></i>
+            <span>&ensp;Tags</span>
+        </a>
+        
+    </nav>
+    <nav id="mobile-menu">
+        <div class="title" @click="showMenuItems = !showMenuItems">
+            <i class="fa-solid fa-bars fa-fw"></i>
+            <span>&emsp;NWPU-ZAK</span>
+        </div>
+        <transition name="slide">
+            <div class="items" v-show="showMenuItems">
+                
+                <a href="/">
+                    <div class="item">
+                        <div style="min-width: 20px; max-width: 50px; width: 10%">
+                            <i class="fa-solid fa-house fa-fw"></i>
+                        </div>
+                        <div style="min-width: 100px; max-width: 150%; width: 20%">Home</div>
+                    </div>
+                </a>
+                
+                <a href="/about">
+                    <div class="item">
+                        <div style="min-width: 20px; max-width: 50px; width: 10%">
+                            <i class="fa-solid fa-id-card fa-fw"></i>
+                        </div>
+                        <div style="min-width: 100px; max-width: 150%; width: 20%">About</div>
+                    </div>
+                </a>
+                
+                <a href="/archives">
+                    <div class="item">
+                        <div style="min-width: 20px; max-width: 50px; width: 10%">
+                            <i class="fa-solid fa-box-archive fa-fw"></i>
+                        </div>
+                        <div style="min-width: 100px; max-width: 150%; width: 20%">Archives</div>
+                    </div>
+                </a>
+                
+                <a href="/categories">
+                    <div class="item">
+                        <div style="min-width: 20px; max-width: 50px; width: 10%">
+                            <i class="fa-solid fa-bookmark fa-fw"></i>
+                        </div>
+                        <div style="min-width: 100px; max-width: 150%; width: 20%">Categories</div>
+                    </div>
+                </a>
+                
+                <a href="/tags">
+                    <div class="item">
+                        <div style="min-width: 20px; max-width: 50px; width: 10%">
+                            <i class="fa-solid fa-tags fa-fw"></i>
+                        </div>
+                        <div style="min-width: 100px; max-width: 150%; width: 20%">Tags</div>
+                    </div>
+                </a>
+                
+            </div>
+        </transition>
+    </nav>
+</div>
+<transition name="fade">
+    <div id="menu-curtain" @click="showMenuItems = !showMenuItems" v-show="showMenuItems"></div>
+</transition>
+
+        <div id="main" :class="loading ? 'into-enter-from': 'into-enter-active'">
+            <div class="article">
+    <div>
+        <h1>黑夜中的YOLO-融合多个模型的域适应方法</h1>
+    </div>
+    <div class="info">
+        <span class="date">
+            <span class="icon">
+                <i class="fa-solid fa-calendar fa-fw"></i>
+            </span>
+            2026/1/8
+        </span>
+        
+        
+    </div>
+    
+    <div class="content" v-pre>
+        <h4 id="黑夜中的yolo-融合多个模型的域适应方法">黑夜中的YOLO-融合多个模型的域适应方法</h4>
+<span id="more"></span>
+<p>在光线弱的情况下进行视觉任务是一个比较困难的课题。短曝光图像是相机传感器在极短的时间内接收光线，但为了在极短的曝光时间内捕捉到足够的光线，相机通常需要提高感光度（ISO）。这会导致图像中的电子信号被放大，同时放大了噪声，使得画面出现明显的噪点，即信噪比（Signal-to-Noise
+Ratio, SNR）较低。</p>
+<p>相比之下，长曝光图像是让相机传感器在一段持续的时间内接收光线，尽管通过长时间打开快门，传感器可以累积更多的光子，从而在低光照下获得更明亮、噪声更少的图像，但是在曝光期间，任何相机自身的抖动或场景中物体的移动都会在图像上留下轨迹，形成运动模糊。这种模糊会丢失物体的细节和清晰边缘，对于需要精确识别和定位的视觉任务来说是致命的。</p>
+<p>本文认为可以通过知识蒸馏的方式来解决弱光照视觉任务这个问题，<strong>使用无监督学习的方式来学习域差距(Domain
+Gap)</strong>，<strong>进而学到域适应(Domain
+Adaption)特性</strong>，进而<strong>提升在不同域之间的适应性，方便域的迁移。</strong></p>
+<h4 id="模型">模型：</h4>
+<figure>
+<img src="/images/image-20250912194129771.png" alt="image-20250912194129771">
+<figcaption aria-hidden="true">image-20250912194129771</figcaption>
+</figure>
+<p>使用领域适应方法融合了在域A和域B训练的2个模型。这里model
+A从一个RAW图片中预测一个RGB图片，然后model
+B从RGB图像中预测目标的位置和类别。</p>
+<hr>
+<p>1、数据输入后，<strong>模型的前几层可能会学习识别一些基础特征，如边缘、角落、颜色块</strong>。随着层数的加深，<strong>模型会将这些基础特征组合起来，形成更高级、更抽象的特征</strong>。这些特征人眼通常无法直接理解，但是对模型的最终任务至关重要。比如，在图像处理中，这些特征可能代表了图像的亮度分布、纹理结构、或者某个物体的部分轮廓等。<strong>这些高度抽象、存在于模型内部中间层的特征，就被称为“潜在特征”或者“潜在表示”。</strong></p>
+<p>模型 A (RAW -&gt; RGB) 的潜在特征
+A，是<strong>模型为了将RAW图像转换成高质量RGB图像而学习到的内部数据表示。</strong></p>
+<p>模型 B (RGB -&gt; 物体检测) 的潜在特征
+B，是<strong>模型为了识别出物体类别和位置而从RGB图像中提取的内部特征。</strong></p>
+<p>2、具有潜在特征A和B边界的模型片段。</p>
+<p>将两个独立训练好的模型(模型A和模型B)从中间切开，然后将它们的片段（模型的一部分，通常是连续的几层）重新拼接起来，形成一个新模型。</p>
+<p><strong>边界指的就是这个切开的位置</strong>，通常选在能够代表“潜在特征”的那些网络层。</p>
+<hr>
+<p><strong>在完成model
+A和B的训练之后，以潜在特征A和B的边界提取模型fragments。</strong>我们把模型A从负责生成潜在特征A的地方切开，保留从输入到这个潜在特征的所有网络层（模型A片段）。同时，我们把模型B也从一个合适的潜在特征B输入的地方切开，保留从这个潜在特征到最终输出的所有网络层（模型B片段）。</p>
+<p><strong>new model由model A的前半段通过一层粘合层(Glue
+Layer)和模型B的后半段组合而成。</strong></p>
+<p><strong>模型A的前半段负责从原始数据X(RAW图像)中提取高级的潜在特征A。</strong></p>
+<p>因为潜在特征A和潜在特征B即使数据类型和维度相同，它们的特征空间和分布也可能不同，<strong>Glue
+Layer</strong>层通过学习可以将模型<strong>fragments</strong>中的<strong>latent
+feature A</strong>转换为<strong>latent feature B</strong>。</p>
+<p><strong>模型B的片段接收来自Glue
+Layer适配过的特征，进行最终的预测。</strong></p>
+<p><strong>SID模型在低光图像上有比较好的效果，因此使用SID模型作为model
+A。使用目标检测模型YOLO作为model B。</strong></p>
+<h4 id="用于域适应的生成模型">用于域适应的生成模型</h4>
+<p>如何在没有”RAW低光图像+物体标注”这种配对数据集的情况喜爱，训练连接两个模型的Glue
+Layer？</p>
+<p>创建一个<strong>生成模型</strong>G2e（特指一个编码器），利用<strong>知识蒸馏</strong>的技术来伪造出训练所需的数据。</p>
+<p>G2e 的任务是学习一个逆向功能：<strong>输入一张清晰的RGB图像
+Ya，G2e应该能生成一个“潜在特征” (LF
+fake)，这个特征要和“原版SID模型”的编码器 (Gle) 从对应的RAW图像 (X)
+中提取出的潜在特征 (LF) 尽可能相似</strong> 。</p>
+<p>换句话说，G2e 要学会<strong>从RGB图像中提取出与
+“SID编码器从RAW图像中提取的潜在特征相同”
+的潜在特征</strong>。<strong>即用RGB图像“模拟”出RAW图像经过SID编码器后的效果</strong>。</p>
+<h4 id="生成模型训练过程">生成模型训练过程：</h4>
+<figure>
+<img src="/images/image-20250912204044585.png" alt="image-20250912204044585">
+<figcaption aria-hidden="true">image-20250912204044585</figcaption>
+</figure>
+<p>1、教师模型：使用预训练好的SID模型(Gle-Gld)作为教师。其中Gle是编码器(RAW-&gt;潜在特征)，Gld是解码器(潜在特征-&gt;RGB)。</p>
+<p>2、学生模型：G2e编码器</p>
+<p>3、训练数据：使用SID数据集中已有的RAW图像和对应的RGB图像对。</p>
+<p>4、训练由两个损失函数共同驱动，以确保G2e能够学习得足够像：</p>
+<p><span class="math display"><em>L</em><sub><em>R</em><em>G</em><em>B</em></sub> = ||<em>R</em><em>G</em><em>B</em><sub><em>d</em><em>a</em><em>t</em><em>a</em></sub> − <em>R</em><em>G</em><em>B</em><sub><em>f</em><em>a</em><em>k</em><em>e</em></sub>||<sub>1</sub></span></p>
+<p><span class="math display"><em>L</em><sub><em>R</em><em>G</em><em>B</em></sub></span>（RGB损失）：将学生模型G2e生成的伪潜在特征输入到教师模型的解码器Gld中，重建出一张伪RGB图像（RGB
+fake）。然后计算这张伪图像与真实的RGB图像之间的L1损失（像素差的绝对值之和）。这个损失确保了G2e生成的潜在特征能够被Gld正确地解码回RGB图像。</p>
+<p><span class="math display"><em>L</em><sub><em>L</em><em>F</em></sub> = ∑<sub><em>i</em></sub>||<em>L</em><em>F</em><sub><em>G</em>2<em>e</em></sub><sup><em>i</em></sup> − <em>L</em><em>F</em><sub><em>G</em>1<em>e</em></sub><sup><em>i</em></sup>||<sub>1</sub>,</span></p>
+<p><span class="math display"><em>L</em><sub><em>L</em><em>F</em></sub></span>（潜在特征损失）：直接比较学生G2e从RGB图像生成的潜在特征，和教师Gle从对应的RAW图像生成的潜在特征之间的L1损失。这是知识蒸馏的核心，它强制G2e学习SID模型内部的特征表示，而不仅仅是最终的输出结果（重建结果）。</p>
+<p>通过最小化两个损失之和，<span class="math display"><em>L</em><sub><em>t</em><em>o</em><em>t</em><em>a</em><em>l</em></sub> = <em>L</em><sub><em>R</em><em>G</em><em>B</em></sub> + <em>L</em><sub><em>L</em><em>F</em></sub></span>，G2e就学会了如何从一张普通的RGB图像生成一个高质量的、模拟的低光RAW潜在特征。</p>
+<figure>
+<img src="/images/image-20250912214618497.png" alt="image-20250912214618497">
+<figcaption aria-hidden="true">image-20250912214618497</figcaption>
+</figure>
+<p>Glue
+Layer由pool、cat、conv和BN组成，pool和cat函数有助于提取潜在特征。</p>
+<p>这里作者做了实验：</p>
+<figure>
+<img src="/images/image-20250912214946083.png" alt="image-20250912214946083">
+<figcaption aria-hidden="true">image-20250912214946083</figcaption>
+</figure>
+<p>显示了使用SID编码器的潜在特征重建生成的RGB图像。图a是使用了所有潜在特征重建得到的图像。这些图像的峰值信噪比（PSNR）为31.81，与原始图像的结构相似性（SSIM）为0.752。图b、c、d为使用较少潜在特征重建得到的图像，这些图像的质量相对差一些，并且为了检测物体，我们必须识别出物体的具体形状，而b、c、d这些图像形状特征很少。所以作者决定使用所有的潜在特征用于Gule
+Layer。</p>
+<figure>
+<img src="/images/image-20250912215311801.png" alt="image-20250912215311801">
+<figcaption aria-hidden="true">image-20250912215311801</figcaption>
+</figure>
+<p>可以看见SID模型生成的RGB图像和G2e重建得到的图像已经非常相近了。为了进一步优化G2e模型，作者还使用YOLO的分类输出特征向量来优化G2e，以提升其转换域A-&gt;B的性能：</p>
+<p><span class="math display"><em>L</em><sub><em>G</em>2<em>e</em> − <em>F</em><em>T</em></sub> = <em>c</em><em>o</em><em>s</em>(<em>L⃗</em><em>F</em><sub><em>G</em>2<em>e</em> − <em>c</em><em>l</em><em>s</em></sub>, <em>L⃗</em><em>F</em><sub><em>Y</em><em>O</em><em>L</em><em>O</em> − <em>c</em><em>l</em><em>s</em></sub>)</span></p>
+<p>使用余弦相似度来计算向量之间的损失，通过反向传播进行更新迭代和优化。</p>
+<h4 id="整个模型训练环境">整个模型训练环境：</h4>
+<p>在上面成功训练出生成模型G2e之后，现在来看如何使用G2e来训练真正的目标——Glue
+Layer。</p>
+<figure>
+<img src="/images/image-20250912215647102.png" alt="image-20250912215647102">
+<figcaption aria-hidden="true">image-20250912215647102</figcaption>
+</figure>
+<p>整个训练过程可以分为训练、验证和预测三个阶段。</p>
+<p><strong>训练阶段：</strong></p>
+<p>1、两条并行路径。上方的G2e路径，RGB图像首先输入我们训练好的生成模型编码器G2e中，生成伪潜在特征A。然后将其送入Glue
+Layer，Glue
+Layer将特征A转换为特征B，然后送入YOLO模型的后半部分得到目标检测结果。</p>
+<p>下方的原始YOLO路径，与上面相同的RGB图像被送入一个<strong>未经修改的、预训练好的原始YOLO模型</strong>，这个模型也会在其中间层生成一个潜在特征B’。</p>
+<p>2、两个损失函数。</p>
+<p><span class="math display"><em>L</em><sub><em>Y</em><em>O</em><em>L</em><em>O</em></sub></span>（YOLO损失）：比较上方路径输出的检测结果和真实的类别、边界框标注，计算它们之间的差距
+。</p>
+<p><span class="math display"><em>L</em><sub><em>Y</em><em>O</em><em>L</em><em>O</em> − <em>L</em><em>F</em></sub> = ||<em>L</em><em>F</em><sub><em>g</em><em>l</em><em>u</em><em>e</em></sub> − <em>L</em><em>F</em><sub><em>Y</em><em>O</em><em>L</em><em>O</em></sub>||<sub>2</sub>.</span></p>
+<p><span class="math display"><em>L</em><sub><em>Y</em><em>O</em><em>L</em><em>O</em> − <em>L</em><em>F</em></sub></span>（潜在特征损失）：这是一个起辅助和正则化作用的损失
+。它比较上方路径中<strong>Glue
+Layer输出的特征B</strong>和下方路径中<strong>原始YOLO模型生成的特征B’</strong>之间的L2损失（欧氏距离）。这个损失强制Glue
+Layer学习生成一种YOLO模型的后半部分“能够理解”和“习惯处理”的特征，起到了“提示”的作用。</p>
+<p><strong>通过优化这两个损失的总和<span class="math display"><em>L</em><sub><em>t</em><em>o</em><em>t</em><em>a</em><em>l</em></sub> = <em>L</em><sub><em>Y</em><em>O</em><em>L</em><em>O</em></sub> + <em>λ</em><em>L</em><sub><em>Y</em><em>O</em><em>L</em><em>O</em> − <em>L</em><em>F</em></sub></span>Glue
+Layer被有效训练，学会了如何将SID模型的潜在特征A转换成YOLO模型的潜在特征B。</strong></p>
+<p><strong>验证阶段</strong></p>
+<p>验证流程和训练流程基本一致，使用RGB数据通过G2e的路径来评估模型性能，以确认Glue
+Layer是否被正确训练 。</p>
+<p><strong>预测阶段</strong>：</p>
+<p>输入的是<strong>真实的低光RAW图像</strong>。数据流不再经过G2e，而是通过原版的SID编码器Gle，然后进入我们训练好的Glue
+Layer，最后由YOLO的后端输出检测结果 。</p>
+<h4 id="总结">总结：</h4>
+<p>本来我的YOLO检测模型是在一个包含标准光照、清晰的RGB图像的数据集（如COCO或PASCAL
+VOC）上训练的，这是它的原始域。但是我现在想要在低光照、短曝光的RAW图像中应用YOLO模型，并且我期望它的检测结果不低于RGB图像中的检测结果。</p>
+<p><strong>但是标准光照、清晰的RGB图像和低光照、短曝光的RAW图像，这是两个特征分布完全不同的域。</strong></p>
+<h5 id="一所以本文的域差距是什么">一、所以本文的<strong>域差距是什么？</strong></h5>
+<p><strong>标准的RGB图像域与低光照RAW图像域之间的巨大差距，如果直接将为标准RGB图像设计的YOLO模型应用与处理后的低光照图像，效果会很差。</strong></p>
+<p>所以我需要的是一个<strong>能够从低光照RAW图像域适应到目标检测域(RGB训练的YOLO模型)</strong>的新模型。</p>
+<p>所以本文的创新在于</p>
+<p>将<strong>SID模型处理RAW图像的能力</strong>和<strong>YOLO模型在清晰图像中检测物体的能力</strong>结合起来。</p>
+<p>通过引入胶水层，让<strong>从RAW图像提取出的特征（源域特征）能够被YOLO模型的后半部分所理解和处理（目标域任务）</strong>，从而实现在新的、困难的（低光照RAW）域上完成复杂的检测任务</p>
+<h5 id="二用知识蒸馏创造一个模拟器g2e这个模拟器模拟sid模型从raw图像中提取潜在特征a但是为什么学生模型-g2e-的输入是-rgb-图像">二、用知识蒸馏创造一个“模拟器”(G2e)，这个模拟器模拟SID模型从RAW图像中提取潜在特征A，但是为什么学生模型
+G2e 的输入是 RGB 图像？</h5>
+<p>1、<strong>我们没有一个同时包含低光RAW图像和物体标注的数据集。创建这样的数据集成本极高。</strong>而且如果我们先创建这样的数据集，再去检测，那么就不是一个我们期望的端到端的检测模型。但是我们有大量的<strong>COCO数据集</strong>，它包含<strong>RGB图像</strong>和对应的物体标注。</p>
+<p>2、我们的<strong>最终目的是训练Glue
+Layer</strong>：整个方法的核心目标是训练<strong>Glue Layer</strong>
+。Glue Layer的作用是连接SID的前半部分和YOLO的后半部分 。所以训练这个Glue
+Layer我们需要</p>
+<p>(1)、SID模型前半部分输出的潜在特征A</p>
+<p>(2)、YOLO模型所需的目标标注</p>
+<p>所以我们需要在不更新数据集的情况下，通过知识蒸馏的方式对G2e模型进行预训练，让G2e从标准SID模型中学会：<strong>从RGB图像中能够生成一个伪的潜在特征A，这个特征与SID模型从真实RAW图像生成的特征非常相似。</strong></p>
+<p>最终利用这个模拟器和现有的RGB数据集来训练连接层 Glue
+Layer，最终实现了在不需要新数据集的情况下，<strong>将两个不同领域的模型成功合并</strong>。</p>
+
+    </div>
+    
+    
+    
+    
+    
+    
+    
+</div>
+
+            <footer id="footer">
+    <div id="footer-wrap">
+        <div>
+            &copy;
+            2022 - 2026 NWPU-ZAK
+            <span id="footer-icon">
+                <i class="fa-solid fa-font-awesome fa-fw"></i>
+            </span>
+            &commat;Zang Ankang
+        </div>
+        <div>
+            Based on the <a target="_blank" rel="noopener" href="https://hexo.io">Hexo Engine</a> &amp;
+            <a target="_blank" rel="noopener" href="https://github.com/theme-particlex/hexo-theme-particlex">ParticleX Theme</a>
+        </div>
+        
+    </div>
+</footer>
+
+        </div>
+        
+        <transition name="fade">
+            <div id="preview" ref="preview" v-show="previewShow">
+                <img id="preview-content" ref="previewContent" />
+            </div>
+        </transition>
+        
+    </div>
+    <script src="/js/main.js"></script>
+    
+    
+
+
+
+
+    
+</body>
+</html>

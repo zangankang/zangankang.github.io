@@ -1,0 +1,1188 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>HazyDet：在朦胧场景中使用深度线索进行无人机视图目标检测的开源基准 | NWPU-ZAK</title>
+    <meta name="author" content="Zang Ankang" />
+    <meta name="description" content="兄弟们，一定要出人头地啊" />
+    <meta name="keywords" content="" />
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0"
+    />
+    <link rel="icon" href="/images/avatar.jpg" />
+    <link rel="preconnect" href="https://s4.zstatic.net" />
+<script src="https://s4.zstatic.net/ajax/libs/vue/3.3.7/vue.global.prod.min.js"></script>
+<link rel="stylesheet" href="https://s4.zstatic.net/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
+<link rel="preconnect" href="https://fonts.googleapis.cn" />
+<link rel="preconnect" href="https://fonts.gstatic.cn" crossorigin />
+<link
+    rel="stylesheet"
+    href="https://fonts.googleapis.cn/css2?family=Fira+Code:wght@400;500;600;700&family=Lexend:wght@400;500;600;700;800;900&family=Noto+Sans+SC:wght@400;500;600;700;800;900&display=swap"
+/>
+<script> const mixins = {}; </script>
+
+<script src="https://polyfill.alicdn.com/v3/polyfill.min.js?features=default"></script>
+
+
+<script src="https://s4.zstatic.net/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script src="https://s4.zstatic.net/ajax/libs/highlightjs-line-numbers.js/2.8.0/highlightjs-line-numbers.min.js"></script>
+<link
+    rel="stylesheet"
+    href="https://s4.zstatic.net/ajax/libs/highlight.js/11.9.0/styles/github.min.css"
+/>
+<script src="/js/lib/highlight.js"></script>
+
+
+
+<script src="/js/lib/preview.js"></script>
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/css/main.css" />
+
+<meta name="generator" content="Hexo 7.3.0"><style>mjx-container[jax="SVG"] {
+  direction: ltr;
+}
+
+mjx-container[jax="SVG"] > svg {
+  overflow: visible;
+}
+
+mjx-container[jax="SVG"][display="true"] {
+  display: block;
+  text-align: center;
+  margin: 1em 0;
+}
+
+mjx-container[jax="SVG"][justify="left"] {
+  text-align: left;
+}
+
+mjx-container[jax="SVG"][justify="right"] {
+  text-align: right;
+}
+
+g[data-mml-node="merror"] > g {
+  fill: red;
+  stroke: red;
+}
+
+g[data-mml-node="merror"] > rect[data-background] {
+  fill: yellow;
+  stroke: none;
+}
+
+g[data-mml-node="mtable"] > line[data-line] {
+  stroke-width: 70px;
+  fill: none;
+}
+
+g[data-mml-node="mtable"] > rect[data-frame] {
+  stroke-width: 70px;
+  fill: none;
+}
+
+g[data-mml-node="mtable"] > .mjx-dashed {
+  stroke-dasharray: 140;
+}
+
+g[data-mml-node="mtable"] > .mjx-dotted {
+  stroke-linecap: round;
+  stroke-dasharray: 0,140;
+}
+
+g[data-mml-node="mtable"] > svg {
+  overflow: visible;
+}
+
+[jax="SVG"] mjx-tool {
+  display: inline-block;
+  position: relative;
+  width: 0;
+  height: 0;
+}
+
+[jax="SVG"] mjx-tool > mjx-tip {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+mjx-tool > mjx-tip {
+  display: inline-block;
+  padding: .2em;
+  border: 1px solid #888;
+  font-size: 70%;
+  background-color: #F8F8F8;
+  color: black;
+  box-shadow: 2px 2px 5px #AAAAAA;
+}
+
+g[data-mml-node="maction"][data-toggle] {
+  cursor: pointer;
+}
+
+mjx-status {
+  display: block;
+  position: fixed;
+  left: 1em;
+  bottom: 1em;
+  min-width: 25%;
+  padding: .2em .4em;
+  border: 1px solid #888;
+  font-size: 90%;
+  background-color: #F8F8F8;
+  color: black;
+}
+
+foreignObject[data-mjx-xml] {
+  font-family: initial;
+  line-height: normal;
+  overflow: visible;
+}
+
+.MathJax path {
+  stroke-width: 3;
+}
+
+mjx-container[display="true"] {
+  overflow: auto hidden;
+}
+
+mjx-container[display="true"] + br {
+  display: none;
+}
+</style></head>
+<body>
+    <div id="layout">
+        <transition name="fade">
+            <div id="loading" v-show="loading">
+                <div id="loading-circle">
+                    <h2>LOADING</h2>
+                    <p>加载过慢请开启缓存 浏览器默认开启</p>
+                    <img src="/images/loading.gif" />
+                </div>
+            </div>
+        </transition>
+        <div id="menu" :class="{ hidden: hiddenMenu, 'menu-color': menuColor}">
+    <nav id="desktop-menu">
+        <a class="title" href="/">
+            <span>NWPU-ZAK</span>
+        </a>
+        
+        <a href="/">
+            <i class="fa-solid fa-house fa-fw"></i>
+            <span>&ensp;Home</span>
+        </a>
+        
+        <a href="/about">
+            <i class="fa-solid fa-id-card fa-fw"></i>
+            <span>&ensp;About</span>
+        </a>
+        
+        <a href="/archives">
+            <i class="fa-solid fa-box-archive fa-fw"></i>
+            <span>&ensp;Archives</span>
+        </a>
+        
+        <a href="/categories">
+            <i class="fa-solid fa-bookmark fa-fw"></i>
+            <span>&ensp;Categories</span>
+        </a>
+        
+        <a href="/tags">
+            <i class="fa-solid fa-tags fa-fw"></i>
+            <span>&ensp;Tags</span>
+        </a>
+        
+    </nav>
+    <nav id="mobile-menu">
+        <div class="title" @click="showMenuItems = !showMenuItems">
+            <i class="fa-solid fa-bars fa-fw"></i>
+            <span>&emsp;NWPU-ZAK</span>
+        </div>
+        <transition name="slide">
+            <div class="items" v-show="showMenuItems">
+                
+                <a href="/">
+                    <div class="item">
+                        <div style="min-width: 20px; max-width: 50px; width: 10%">
+                            <i class="fa-solid fa-house fa-fw"></i>
+                        </div>
+                        <div style="min-width: 100px; max-width: 150%; width: 20%">Home</div>
+                    </div>
+                </a>
+                
+                <a href="/about">
+                    <div class="item">
+                        <div style="min-width: 20px; max-width: 50px; width: 10%">
+                            <i class="fa-solid fa-id-card fa-fw"></i>
+                        </div>
+                        <div style="min-width: 100px; max-width: 150%; width: 20%">About</div>
+                    </div>
+                </a>
+                
+                <a href="/archives">
+                    <div class="item">
+                        <div style="min-width: 20px; max-width: 50px; width: 10%">
+                            <i class="fa-solid fa-box-archive fa-fw"></i>
+                        </div>
+                        <div style="min-width: 100px; max-width: 150%; width: 20%">Archives</div>
+                    </div>
+                </a>
+                
+                <a href="/categories">
+                    <div class="item">
+                        <div style="min-width: 20px; max-width: 50px; width: 10%">
+                            <i class="fa-solid fa-bookmark fa-fw"></i>
+                        </div>
+                        <div style="min-width: 100px; max-width: 150%; width: 20%">Categories</div>
+                    </div>
+                </a>
+                
+                <a href="/tags">
+                    <div class="item">
+                        <div style="min-width: 20px; max-width: 50px; width: 10%">
+                            <i class="fa-solid fa-tags fa-fw"></i>
+                        </div>
+                        <div style="min-width: 100px; max-width: 150%; width: 20%">Tags</div>
+                    </div>
+                </a>
+                
+            </div>
+        </transition>
+    </nav>
+</div>
+<transition name="fade">
+    <div id="menu-curtain" @click="showMenuItems = !showMenuItems" v-show="showMenuItems"></div>
+</transition>
+
+        <div id="main" :class="loading ? 'into-enter-from': 'into-enter-active'">
+            <div class="article">
+    <div>
+        <h1>HazyDet：在朦胧场景中使用深度线索进行无人机视图目标检测的开源基准</h1>
+    </div>
+    <div class="info">
+        <span class="date">
+            <span class="icon">
+                <i class="fa-solid fa-calendar fa-fw"></i>
+            </span>
+            2026/1/8
+        </span>
+        
+        
+    </div>
+    
+    <div class="content" v-pre>
+        <h1 id="hazydet在朦胧场景中使用深度线索进行无人机视图目标检测的开源基准">HazyDet：在朦胧场景中使用深度线索进行无人机视图目标检测的开源基准</h1>
+<span id="more"></span>
+<h2 id="问题">问题</h2>
+<h3 id="正常环境">正常环境</h3>
+<p>即使是在晴朗的天气中，与地面视觉相比，无人机的目标检测也存在独特的困难。</p>
+<figure>
+<img src="/images/image-20250626104310309.png" alt="无人机视觉检测中的挑战">
+<figcaption aria-hidden="true">无人机视觉检测中的挑战</figcaption>
+</figure>
+<p>无人机目标检测的大部分工作都集中<strong>在航空图像的内在复杂性上</strong>。</p>
+<p><strong>(1)尺度变化：由于海拔和视点的变化</strong>，航拍图像<strong>包括不同尺度的物体，其中小物体占主导地位</strong>。研究人员通过<strong>使用分层网络的多尺度特征集成来解决这个问题，以聚合不同空间分辨率的信息。(解决多尺度目标的问题一般都是用多尺度特征融合即集成不同层的网络特征)</strong></p>
+<p><strong>(2)非均匀空间分布：物体倾向于在场景中不规则地分散</strong>，这与标准数据集中经常发现的更居中的组合不同。为此，其他人探索了<strong>从粗到细的检测管道</strong>，</p>
+<hr>
+<p>从粗到细的检测方法，这种方法不求一步到位，而是先对物体可能在的区域给出一个粗略的猜测，然后逐步调整这个猜测，最终实现精准定位。</p>
+<p>可以理解为一种<strong>“两步走”或“多步走”的策略</strong>，核心思想是<strong>先大概定位，再精确瞄准</strong>。</p>
+<ul>
+<li><strong>Coarse (粗)</strong>:
+指的是第一步，进行一个粗略、宽泛的查找。系统会快速扫描整个图像，并说：“嘿，目标<strong>大概</strong>在这几个区域里！”
+这一步不要求精确，但求速度快，并且不要漏掉目标。</li>
+<li><strong>Fine (细)</strong>:
+指的是后续步骤。系统会把注意力集中在第一步找到的那几个粗略区域上，然后进行更仔细、更精细的分析，最终确定目标的精确位置、大小和形状。</li>
+</ul>
+<p>想象一下在一张巨大的“大家来找茬”图片里找一个很小的东西。</p>
+<ul>
+<li><strong>“粗”的阶段</strong>：我们不会一开始就一个像素一个像素地看。而是会先用眼睛快速扫一遍，把图片分成几个大区域，然后判断：“嗯，我要找的东西应该在<strong>左上角那块区域</strong>。”</li>
+<li><strong>“细”的阶段</strong>：然后，目光会聚焦在左上角那块区域，仔细地检查，最终找到那个小东西的确切位置。</li>
+</ul>
+<p>这个“先扫视再聚焦”的过程，就是“从粗到细”的核心思想。“管道 (pipeline)”
+在这里指的是一个处理流程，表示这是一个由多个步骤组成的完整方案。</p>
+<hr>
+<p>其中<strong>初始区域建议被逐步细化以实现精确定位</strong>。</p>
+<hr>
+<ul>
+<li><strong>“初始区域建议 (Initial region proposals)”</strong>:
+这就是“粗”阶段的产物。算法在快速扫描后，会<strong>“建议(propose)”</strong>出一些可能包含目标的<strong>“候选区域(region)”</strong>。这些区域通常是一些粗糙的方框，可能比实际物体大，位置也可能有点偏。它们是“初始”的，是第一步的猜测。</li>
+<li><strong>“被逐步细化 (progressively refined)”</strong>:
+这就是“细”阶段要做的事。算法会拿到那些粗糙的候选框，然后像工匠打磨璞玉一样，对它们进行<strong>一步一步地
+(progressively)</strong> 调整和修正。
+<ul>
+<li>可能先把框的大小调整得更合适。</li>
+<li>然后再把框的位置移动得更准确。</li>
+<li>这个过程可能会重复几次，每一次都让候选框离完美贴合物体更近一步。</li>
+</ul></li>
+<li><strong>“以实现精确定位 (to achieve precise localization)”</strong>:
+这是最终的目标。经过一系列的“细化”操作后，最终得到的那个框能够非常准确地包裹住目标物体，不多也不少，位置也刚刚好。</li>
+</ul>
+<hr>
+<p>这些改进在正常条件下可能会产生稳健的结果，但它们<strong>在恶劣环境下的有效性却远未得到了解。</strong></p>
+<h3 id="恶劣环境">恶劣环境</h3>
+<p><strong>确保在充满挑战的现实世界条件下获得可靠的感知仍然是一个重大障碍</strong>。在各种因素中，<strong>恶劣的大气环境，特别是雾霾，是一个持续存在的障碍，极大地破坏了无人机探测系统的鲁棒性。</strong>甚至还会对其所搭载的传感器造成严重干扰。</p>
+<p>恶劣条件下的目标检测。解决这个问题的方法通常<strong>采用单独或联合优化。</strong></p>
+<h4 id="单独优化串行-先恢复图像再检测">单独优化(串行
+先恢复图像再检测)</h4>
+<p><strong>单独优化的独立范式首先采用恢复算法在检测前增强画质；然而，这往往不能充分提高检测精度，并可能有害地抑制对识别小型空中目标至关重要的高频细节</strong>。</p>
+<h4 id="联合优化并行-同时进行图像恢复和检测-相互激励">联合优化(并行
+同时进行图像恢复和检测 相互激励)</h4>
+<p><strong>联合优化框架整合了恢复和检测</strong>，如AOD-Net、IA-YOLO、DSNet和BAD-Net。然而，这些方法经常要面对几个棘手的难题：</p>
+<p>一、优化的目标本身相互矛盾，一个方法试图同时达成多个目标时，这些目标之间会打架，提升一个目标的表现，往往会损失另一个目标的表现，就像我们在目标检测的定位和分类任务中，两者同时优化时可能会丢失一部分信息或者忽略一部分信息，所以需要解耦两部分的优化</p>
+<p>二、它们严重依赖于精心配对的数据，而这种数据往往非常稀缺</p>
+<h3 id="现实环境">现实环境</h3>
+<p>在实践中，无人机大多部署在天气和大气可能发生巨大变化的户外环境中。雾霾尤其常见，它引入了两个额外的挑战：</p>
+<p><strong>(1)（表面问题）由于对比度降低和颜色偏移，导致图像质量下降，即图像本身变差了，人眼就能看出来，画面变得模糊、颜色也不对了。</strong></p>
+<hr>
+<p><strong>对比度降低 (Diminished contrast)</strong>:
+指图像中最亮和最暗部分之间的差异变小了。</p>
+<ul>
+<li><strong>通俗理解</strong>：就像在有雾的天气里看东西，所有东西都灰蒙蒙的，轮廓不清晰，缺乏层次感。一张鲜艳的照片变得“褪色”或“发白”。</li>
+</ul>
+<p><strong>颜色偏移 (Color shifts)</strong>:
+指图像的颜色失真，不再是物体真实的颜色。</p>
+<ul>
+<li><strong>通-俗理解</strong>：就像戴了一副有颜色的太阳镜看世界。本来红色的苹果可能看起来偏橙色，蓝色的天空可能带点紫色或灰色。整张图片的色调都可能偏向某一种颜色（比如偏黄或偏蓝）。</li>
+</ul>
+<p>颜色图像的三大底层特征，所以颜色特征被破坏会降低模型的泛化性和鲁棒性。</p>
+<hr>
+<p><strong>(2)（深层问题）以及模型识别所依赖的底层特征分布发生了
+更微妙但同样有问题
+的变化，也就是说识别算法所依赖的“内部线索”也变了。</strong></p>
+<hr>
+<p><strong>“底层特征 (Underlying feature)”</strong>:
+AI模型（比如一个图像识别系统）识别物体时，它不是像人一样理解“这是一辆车”。相反，它会将图像分解成无数个微小的<strong>“特征”</strong>，比如边缘、纹理、角点、颜色块、特定形状的组合等。对于汽车，这些特征可能是“圆形的轮廓”、“金属的光泽”、“窗户的矩形”等等。模型就是通过学习这些特征的组合来进行识别的。</p>
+<p><strong>“特征分布 (Feature distribution)”</strong>:
+在训练阶段，模型学习了成千上万张图片，并总结出了一套规律，即“什么样的特征组合对应什么样的物体”。这套规律就是它学到的“特征分布”。</p>
+<ul>
+<li><strong>例如</strong>，模型学到：如果一张图里同时出现“两个尖尖的耳朵”+“胡须”+“毛茸茸的纹理”这些特征（特征分布），那么这很可能是一只猫。</li>
+</ul>
+<p><strong>“分布发生了变化 (Shift in the distribution)”</strong>:
+当图像质量下降时（比如起了大雾），这些底层特征也变了。</p>
+<ul>
+<li>雾气可能会让猫耳朵的“尖锐边缘”特征变得模糊。</li>
+<li>光线变化可能会让“毛茸茸的纹理”特征消失。</li>
+<li>虽然人眼凑近了还能认出是猫，但对于严格依赖“尖耳朵+胡须+毛茸茸”这个公式的AI模型来说，它所依赖的<strong>线索组合（特征分布）</strong>已经对不上了。</li>
+</ul>
+<hr>
+<h6 id="虽然一些研究主要来自自动驾驶领域试图通过将检测与图像恢复相结合来解决天气影响但这些解决方案不可转移到无人机上因为它们依赖于地面先验并且明显缺乏无人机特定的朦胧基准">虽然一些研究(主要来自自动驾驶领域)试图通过将检测与图像恢复相结合来解决天气影响，但这些解决方案不可转移到无人机上，因为它们依赖于地面先验，并且明显缺乏无人机特定的朦胧基准。</h6>
+<hr>
+<p>解释一下这段话</p>
+<p>这句话指出了将自动驾驶领域为解决恶劣天气而开发的算法直接应用到无人机领域的两个主要障碍。</p>
+<p>逐一分析这两个障碍：</p>
+<ol type="1">
+<li><strong>依赖于地面先验 (Reliance on ground-level priors):</strong>
+<ul>
+<li><strong>什么是地面先验？</strong>“先验”是指模型在设计时就内置的一些假设或知识。自动驾驶车辆的摄像头视角是<strong>水平的、离地高度固定</strong>的（大约1.5-2米）。基于这个事实，算法可以做出很多强有力的假设：
+<ul>
+<li><strong>天空在上，地面在下：</strong>
+图像的上半部分通常是天空，亮度较高，深度可以视为无穷远。这可以用来估计全局大气光A。</li>
+<li><strong>地平面假设：</strong>
+地面是一个大致平坦的平面，物体都“立”在地面上。</li>
+<li><strong>消失点：</strong>
+==道路的平行线会在远方汇聚于一个消失点，这提供了强烈的几何约束。==</li>
+<li><strong>物体尺度与位置关系：</strong>
+==在地平线以下的物体，其在图像中的垂直位置越高，通常意味着它离得越远。==</li>
+</ul></li>
+<li><strong>为什么无人机不适用？</strong>
+无人机的视角是<strong>俯瞰的、多变的、高度不固定</strong>的。上述所有地面先验都<strong>完全失效</strong>了。==无人机图像中可能根本没有天空，也没有明确的地平线和消失点。物体在图像中的位置和尺度关系也变得更加复杂。==</li>
+<li><strong>结论：</strong>
+一个为自动驾驶设计的、严重依赖这些地面先验的去雾或检测算法，如果直接用到无人机图像上，很可能会因为假设不成立而彻底崩溃。</li>
+</ul></li>
+</ol>
+<hr>
+<p>此外，<strong>==图像恢复有时会产生实际上损害检测性能的伪影==。</strong>至关重要的是，发现了一个基本疏忽：==<strong>大多数当前的方法都没有有效地使用深度信息。这是一个关键的线索，因为物体尺度与鸟瞰中的深度有内在的联系，雾霾密度也受其物理控制。</strong>==</p>
+<hr>
+<p>解释一下这句话：因为物体尺度与鸟瞰中的深度有着内在的联系，雾霾密度也受其物理控制。</p>
+<p>这句话的核心是强调==<strong>深度</strong>==这个变量的中心地位，它同时控制着两个看似不相关但实际上密切联系的现象。</p>
+<ol type="1">
+<li><p>==<strong>物体尺度与鸟瞰中的深度有着内在的联系 (Object scale is
+intrinsically tied to depth in aerial views):</strong>==</p>
+<ul>
+<li>这描述的是==<strong>几何现象（透视原理）</strong>==。</li>
+<li><strong>内在联系：</strong>
+指的是这种关系是根本的，<strong>由三维空间到二维图像的投影几何所决定的。</strong></li>
+<li><strong>含义：</strong>==在无人机的鸟瞰视角下，一个物体离无人机镜头越远（深度越大），它在拍出来的照片上所占的像素尺寸就越小（表观尺度小）。反之，离得越近，看起来就越大。这是一个非常稳定和可预测的关系。==</li>
+</ul></li>
+<li><p>==<strong>雾霾密度也受其物理控制 (Haze density is also physically
+governed by it):</strong>==</p>
+<ul>
+<li>这描述的是==<strong>物理现象（大气散射）</strong>==。</li>
+<li><strong>物理控制：</strong> “it”
+指代的就是前文的“深度”。这句话的意思是，==<strong>雾霾对图像的视觉影响程度，是由物理定律（大气散射模型）通过“深度”这个变量来决定的。</strong>==</li>
+<li><strong>含义：</strong>==<strong>根据大气散射模型，光线在空气中传播的距离越长（深度越大），受到的衰减和散射就越严重</strong>==。因此，==<strong>一个物体离得越远，它在图像中就会显得越模糊、对比度越低、颜色越失真。这里的“雾霾密度”可以理解为“雾霾造成的影响强度”。</strong>==</li>
+</ul>
+<hr>
+<p><strong>举个例子：</strong></p>
+<p>相机去看雾霾深处的一个人。</p>
+<p><strong>雾霾造成的影响强度主要来自两个物理效应：</strong></p>
+<p><strong>1、信号衰减(光线被“阻挡”)</strong></p>
+<p>物理过程：<strong>从人身上反射出来的光线(’人’的信号)，在奔向相机的途中，会不断撞上“雾霾颗粒”。每一次撞击，一部分光线就会被散射掉或者被吸收，导致最终到达相机的人的信号越来越弱。</strong></p>
+<p>与深度的关系：</p>
+<p><strong>深度小</strong>:
+光线路径短，中间遇到的“雾霾”很少。绝大部分“人的信号”都能顺利到达相机。所以看得<strong>很清楚</strong>。</p>
+<p><strong>深度大</strong>:
+光线路径长，中间要穿过密密麻麻的“雾霾”。大量的“人的信号”在途中就丢失了。所以人在看来就变得<strong>模糊、暗淡、对比度极低</strong>。</p>
+<p>2、大气光/程光(视线被污染)</p>
+<p><strong>物理过程</strong>：还有一个更重要的效应。<strong>不仅仅是“人的信号”在减弱，视线路径中，还有来自天空、太阳等环境的光线，这些光线会照亮路径上的那些雾霾颗粒，这些被照亮的雾霾本身本身也会发光，形成一道“光之幕帘”，干扰视线。这种被路径中的颗粒散射到眼睛里的环境光，就叫“大光”（Airlight）。</strong></p>
+<p><strong>与深度的关系</strong>：</p>
+<p><strong>深度小（路径短）</strong>:
+相机和人之间的“雾霾”很少，形成的“光之幕帘”非常薄，几乎可以忽略不计。</p>
+<p><strong>深度大（路径长）</strong>:
+相机和人之间有无数棵被照亮的“雾霾”，它们形成了一道<strong>厚厚的、白茫茫的“光之幕帘”</strong>。这道幕帘叠加在本来就已经很微弱的“鹿的信号”上。</p></li>
+</ol>
+<p>==所以，“雾霾造成的影响强度” 实际上是这两个效应的叠加：==</p>
+<ol type="1">
+<li><strong>物体本身的光线变少了（衰减），导致模糊、对比度下降。</strong></li>
+<li><strong>路径中的环境光变多了（大气光），导致画面发白、颜色失真。</strong></li>
+</ol>
+<p>==而这两个效应的强度，都和光线传播的<strong>路径长度（也就是深度）</strong>成正比。路径越长，中间遇到的雾霾颗粒就越多，影响就越剧烈。==</p>
+<p>==因此，<strong>“深度越大，受雾霾影响越强”</strong>，它是由大气散射的物理定律决定的。==</p>
+<hr>
+<p><strong>总结第二句：</strong>
+作者通过这句话点出了一个关键的洞察——==<strong>“深度”是连接“几何”与“物理”的桥梁</strong>==。在无人机雾天图像中，==<strong>深度这一个变量，同时决定了一个物体在图像中的大小（几何效应）和清晰度（物理效应）。</strong>==</p>
+<p>一个物体，==如果因为它<strong>深度大</strong>而<strong>尺度小</strong>，那么它也必然因为同样的<strong>深度大</strong>而<strong>退化严重</strong>。这种强烈的相关性，是解决问题的关键。==所以，作者认为，==<strong>一个优秀的雾天检测模型，必须能够感知和利用深度信息，来理解这种几何与物理退化之间的内在联系，从而做出更鲁棒的判断</strong>==。这也是他们提出<code>DeCoDet</code>（深度条件检测器）的根本动机。</p>
+<h2 id="一场景深度调节物体的表观尺度">一、场景深度调节物体的表观尺度：</h2>
+<p>这部分是一个更直观的几何规律，即<strong>透视效应(Perspective
+effect)</strong></p>
+<ul>
+<li><strong>表观尺度 (Apparent Scale):</strong>
+指的是物体在2D图像上看起来的大小（即占了多少像素）。</li>
+<li><strong>无人机视角:</strong>
+无人机通常从一个较高的位置俯瞰地面，这种“上帝视角”使得透视效应尤为明显。</li>
+<li>物体尺度与鸟瞰中的深度有着内在的联系，即<strong>无人机从高处向下看的视角与物体在2D图像上所呈现的大小(即像素尺寸)有着根本的、固有的、由几何原理决定的联系。</strong></li>
+<li>在无人机这种通常带有俯瞰角度的视角下，<strong>深度和物体在图像上的大小之间的关系尤其稳定和明确。</strong></li>
+<li><strong>结论：</strong>
+在其他条件相同的情况下，<strong>一个物体离无人机越近（深度越小），它在图像上看起来就越大（表观尺度大）；离得越远（深度越大），看起来就越小（表观尺度小）。</strong>
+这是我们日常生活中最基本的经验。</li>
+</ul>
+<p>想象一下：无人机在50米高空飞行，地面上有两辆完全一样的汽车。</p>
+<ul>
+<li>一辆车在无人机正下方，<strong>深度 ≈
+50米</strong>。它在图像上可能占据了<code>100x50</code>个像素。</li>
+<li>另一辆车在远处，距离无人机（斜线距离）<strong>深度 =
+200米</strong>。根据透视原理，它在图像上可能只占据了<code>25x12.5</code>个像素。</li>
+</ul>
+<p>==这种“<strong>深度越大，尺度越小</strong>”的关系，在鸟瞰视角下是一个非常强大和可靠的先验知识。==</p>
+<h2 id="二场景深度调节退化的严重程度">二、场景深度调节退化的严重程度：</h2>
+<p>这部分源于一个著名的物理模型，叫做<strong>大气散射模型 (Atmospheric
+Scattering Model, ASM)</strong>，论文的公式(1)就是这个模型。</p>
+<p><span class="math display"><em>I</em>(<em>x</em>, <em>y</em>) = <em>J</em>(<em>x</em>, <em>y</em>)<em>t</em>(<em>x</em>, <em>y</em>) + <em>A</em>(1 − <em>t</em>(<em>x</em>, <em>y</em>))</span></p>
+<p><span class="math display"><em>t</em>(<em>x</em>, <em>y</em>) = <em>e</em><sup>−<em>β</em><em>d</em>(<em>x</em>, <em>y</em>)</sup></span></p>
+<p>我们来通俗地解释一下：</p>
+<ul>
+<li>==<strong>你看到的雾天图像 <code>I(x, y)</code></strong>
+是由两部分混合而成的：==
+<ol type="1">
+<li>==<strong>物体本身的光 <code>J(x, y)t(x, y)</code>:</strong>
+这是物体<code>J(x, y)</code>发出的光，在到达你眼睛（或无人机摄像头）的过程中，经过了衰减。衰减的程度由一个叫做“透射率”<code>t(x, y)</code>的东西决定。==</li>
+<li>==<strong>大气光 <code>A(1 - t(x, y))</code>:</strong>
+这是空气中悬浮的微粒（雾、霾）散射的太阳光，它像一层白色的“面纱”一样叠加在图像上。==</li>
+</ol></li>
+<li><strong>关键在于透射率 <code>t(x, y)</code>:</strong>
+<ul>
+<li>==<code>d(x, y)</code>
+就是<strong>场景深度</strong>，即物体到摄像头的距离。==</li>
+<li><strong><span class="math inline"><em>β</em></span>是散射系数，代表雾的浓度。</strong></li>
+<li>==这个公式<span class="math inline"><em>t</em>(<em>x</em>, <em>y</em>) = <em>e</em><sup>−<em>β</em><em>d</em>(<em>x</em>, <em>y</em>)</sup></span>告诉我们一个非常重要的物理规律：<strong>物体的距离
+<code>d(x,y)</code> 越远，指数<span class="math inline">−<em>β</em><em>d</em>(<em>x</em>, <em>y</em>)</span>就越小，所以透射率
+<code>t</code> 就越低。</strong>==</li>
+</ul></li>
+<li><strong>透射率 <code>t</code> 越低意味着什么？</strong>
+<ol type="1">
+<li>==<strong>物体本身的光 <code>J·t</code>
+会变得更暗，因为衰减得更厉害。</strong>==</li>
+<li>==<strong>大气光 <code>A·(1-t)</code>
+会变得更强，因为<code>1-t</code>变大了。</strong>==</li>
+</ol></li>
+<li><strong>结论：</strong>
+综上所述，==<strong>一个物体离得越远（深度越大），它本身的信息（颜色、纹理）就衰减得越多，同时被大气光（白色面纱）覆盖得就越严重。</strong>==
+这就是“场景深度调节退化的严重程度”的精确含义。<strong>在无人机航拍图像中，远处的山峦总是比近处的房屋更模糊、更“发白”</strong>，就是这个道理。</li>
+</ul>
+<h3 id="两部分的关联与总结">两部分的关联与总结</h3>
+<p>现在，我们把这两部分联系起来，就能完全理解原文的深刻含义了：</p>
+<p>1、<strong>“场景深度”就像一个幕后黑手，它同时操控着两件事情：</strong></p>
+<ol type="1">
+<li><strong>物理退化：</strong>
+==深度越大，雾霾效果越强，图像质量越差。==</li>
+<li><strong>几何投影：</strong>
+==深度越大，物体在图像上投影的尺寸越小。==</li>
+</ol>
+<p>这就导致了一个非常棘手的问题：==<strong>在无人机雾天图像中，最难检测的目标（远处的小目标）恰恰是那些被雾气影响最严重、视觉特征最模糊的目标！</strong>==
+这两种困难是<strong>高度耦合（coupled）</strong>的。</p>
+<p>因此，论文作者认为，任何不考虑“深度”这个关键线索的雾天检测方法，都是在盲人摸象。他们提出的<code>DeCoDet</code>的核心思想就是：==<strong>既然深度是问题的根源，那么我们就应该把深度信息明确地引入到模型中，让模型学会根据不同的深度，动态地调整自己的检测策略。</strong>==
+这就是他们设计“深度条件卷积核 (Depth-Conditioned
+Kernel)”的根本原因。</p>
+<p>换句话说</p>
+<p>2、<strong>在无人机鸟瞰图像中，“深度”这一个变量，同时扮演了两个关键角色，它像一个总开关，一体两面地控制着：</strong></p>
+<ol type="1">
+<li><strong>几何外观：</strong> 物体在图像上看起来有多大。</li>
+<li><strong>物理退化：</strong> 物体在图像上看起来有多模糊。</li>
+</ol>
+<p><strong>这揭示了一种深刻的内在一致性（consistency）。</strong>
+==一个物体如果因为深度很大而变得很小，那么它也必然会因为同样的深度而变得很模糊。==</p>
+<p>这对模型设计有何启发？</p>
+<p><strong>传统的检测器在处理雾天图像时是“盲目”的。它看到一个模糊的小像素块，不知道这是因为：</strong></p>
+<ul>
+<li><strong>A)
+一个本身就很小的物体，恰好离得很近（深度小，但退化也小）。</strong></li>
+<li><strong>B)
+一个很大的物体，但是离得非常远（深度大，所以退化严重）。</strong></li>
+</ul>
+<p>而引入了深度信息的模型（如本文的DeCoDet），则可以进行==<strong>有根据的推理</strong>==。==<strong>当模型获得一个位置的深度估计值（比如150米）后，它就获得了两条宝贵的先验信息：</strong>==</p>
+<ol type="1">
+<li>==<strong>“根据几何原理，在这个位置的物体在图像上应该会非常小。”</strong>==</li>
+<li>==<strong>“根据物理原理，这个位置的图像信号应该会受到非常严重的雾霾退化。”</strong>==</li>
+</ol>
+<p>==<strong>带着这两条先验信息，模型就可以更“智能”地去解读那个模糊的小像素块。</strong>==例如，==<strong>它可能会动态地调整其卷积核，使用更大的感受野去捕捉上下文，或者应用更强的去噪/增强策略来处理这个特定区域的特征。</strong>==</p>
+<p><strong>因此，这句话的核心是强调：==利用深度信息，可以让模型从根本上理解雾天图像中“几何尺度变化”和“物理退化强度”之间的内在关联，从而做出更鲁棒、更符合物理和几何规律的判断。==</strong></p>
+<h2 id="创新">创新：</h2>
+<p>为了解决由朦胧引起的严重视觉退化问题，提出了深度条件检测器(DeCoDet)。</p>
+<p>1、它避免了显式去雾，继承了深度条件内核，可以根据深度线索动态调制特征表示。</p>
+<p><strong>核心思想（Depth-Conditioned Kernel
+DCK）：</strong>这是一种<strong>动态卷积机制</strong>。它==<strong>不再使用固定的卷积核来处理所有图像区域，而是根据每个像素位置的深度信息，动态地为该位置生成一个特定的卷积核。这使得网络可以对不同距离(因而不同模糊程度)的物体，施加不同的处理方式。</strong>==</p>
+<hr>
+<p>不同距离的物体，<strong>其视觉特征和退化程度完全不同</strong>，因此需要用不同的卷积核来处理。</p>
+<h4 id="情况一深度-150米远处物体"><strong>情况一：深度 =
+150米（远处物体）</strong></h4>
+<h4 id="面临的问题">面临的问题：</h4>
+<ol type="1">
+<li><strong>几何问题</strong>：物体在图像上只有一个模糊的小像素团，==细节全无。==</li>
+<li><strong>物理问题</strong>：信号被雾霾严重污染，==对比度极低，颜色发白。==</li>
+</ol>
+<h4 id="需要的定制工具动态生成的卷积核"><strong>需要的“定制工具”（动态生成的卷积核）</strong>：</h4>
+<ul>
+<li>这个卷积核的数值（权重）会被塑造成类似一个<strong>“去雾+锐化+广域搜索”</strong>的工具。==它不再专注于寻找精细的纹理（因为根本没有），而是：==
+<ul>
+<li><strong>功能1
+(去雾/增强)</strong>：==其内部参数可能学会了如何“滤掉”白色的雾霾信号，增强微弱的边缘信号。==</li>
+<li><strong>功能2
+(扩大感受野)</strong>：它可能被==设计成能更多地考虑周边的上下文信息==。比如，==虽然这个小像素团本身不像车，但它周围是“道路”的特征，这大大增加了它是车的概率。这个核的任务就是把这个“像素团”和周边的“道路”特征关联起来。==</li>
+</ul></li>
+</ul>
+<h4 id="情况二深度-10米近处物体"><strong>情况二：深度 =
+10米（近处物体）</strong></h4>
+<h4 id="面临的问题-1"><strong>面临的问题</strong>：</h4>
+<p><strong>物体清晰、巨大，细节丰富。</strong></p>
+<h4 id="需要的定制工具动态生成的卷积核-1"><strong>需要的“定制工具”（动态生成的卷积核）</strong>：</h4>
+<p>这个卷积核的数值会被塑造成一个<strong>“细节纹理提取器”</strong>。</p>
+<p><strong>功能
+(精细识别)</strong>：它的任务就是去==专注于捕捉车灯的形状、车牌的纹理、轮胎的细节==等。这时它就==不需要太关心去雾功能或者超大的上下文信息，因为这些都不是当前位置的主要矛盾。==</p>
+<h4 id="所以">所以</h4>
+<p>根据深度线索动态生成卷积核的巨大作用在于，它让神经网络学会了“具体问题具体分析”。根据每个地方的“先验信息”（深度），智能地切换卷积核</p>
+<p>==对于远处的、模糊的物体，它知道不应该去“钻牛角尖”找细节，而应该<strong>从宏观上下文和信号增强入手</strong>。==</p>
+<p>==对于近处的、清晰的物体，它知道可以<strong>深入挖掘局部细节</strong>来做出更精确的判断。==</p>
+<hr>
+<p>2、为了解决晴朗、合成雾霾和真实世界雾霾之间的分布转移，DeCoDet使用渐进式域微调(PDFT)策略与尺度不变翻新损失(SIRLoss)相结合进行训练，即使在嘈杂的深度注释中也能实现强大的深度感知学习。</p>
+<p><strong>训练策略（Progressive Domain Fine-Tuning
+PDFT）：</strong>为了解决==<strong>合成数据和真实数据之间的领域差异(Domain
+Gap)，作者提出了一种“渐进式”的微调策略。</strong>==<strong>先用大规模的合成数据进行初步训练，再用少量珍贵的真实数据进行精细微调，同时通过冻结不同层级的网络参数来防止过拟合。</strong></p>
+<p><strong>损失函数（Scale-Invariant Refurbishment Loss,
+SIRLoss）：</strong>这是一个为深度估计分支设计的损失函数。它<strong>不仅能更好地处理深度的尺度变化，还设计了一个“标签翻新”机制，可以减轻由不完美的伪深度标签(Pseudo-depth
+labels)带来的噪声影响。</strong></p>
+<p>这个统一的框架在挑战真实世界雾霾无人机视景场景方面实现了最先进的性能。</p>
+<h2 id="decodet深度条件检测器">DeCoDet：深度条件检测器</h2>
+<h3 id="深度感知表示学习">深度感知表示学习</h3>
+<p>DeCoDet的核心思想是：==<strong>航空图像中雾霾引起的视觉模糊从根本上受场景深度控制，场景深度调节退化的严重程度和物体的表观尺度</strong>==。我们==<strong>没有将深度视为辅助预测或孤立任务，而是将深度视为内在模态，无缝地编织到检测管道中</strong>==。</p>
+<p>首先，我们开发了一个<strong>轻量级深度估计模块，可以生成多尺度深度先验</strong>，而无需计算开销。</p>
+<p>其次，我们<strong>设计了动态深度调制内核，利用这些几何线索进行抗霾检测</strong>。</p>
+<figure>
+<img src="/images/image-20250626162823557.png" alt="image-20250626162823557">
+<figcaption aria-hidden="true">image-20250626162823557</figcaption>
+</figure>
+<h4 id="step1深度先验生成depth-prior-generation">Step1：深度先验生成(Depth
+Prior Generation)：</h4>
+<p>通过<strong>多尺度深度预测将深度估计重新制定为辅助任务</strong>。与需要专用上采样分支的传统编码器-解码器架构不同，DeCoDet直接对主干的金字塔特征<span class="math display"><em>P</em> = {<em>P</em><sub>3</sub>, <em>P</em><sub>4</sub>, …, <em>P</em><sub>7</sub>}.</span>进行操作。在每个尺寸n，我们应用M个特定于深度的卷积：</p>
+<p><span class="math display"><em>D</em><sup><em>m</em></sup> = <em>R</em><em>e</em><em>L</em><em>U</em>(<em>B</em><em>N</em>(<em>C</em><em>o</em><em>n</em><em>v</em><sub>3 × 3</sub><sup><em>m</em></sup>(<em>D</em><sup><em>m</em> − 1</sup>))), (<em>m</em> = 1, 2, ⋯, <em>M</em>),</span></p>
+<p>对于每个尺度<span class="math display"><em>n</em> ∈ {3, 4, …, 7}</span>，<span class="math display"><em>D</em><sub><em>n</em></sub><sup>0</sup> = <em>P</em><sub><em>n</em></sub></span></p>
+<p><strong>然后通过1×1卷积处理每个尺度上的最终特征<span class="math display"><em>D</em><sub><em>n</em></sub><sup><em>M</em></sup></span></strong>，以生成相应的深度图<span class="math display">{<em>D</em><sub>3</sub>, …, <em>D</em><sub>7</sub>}</span>，<strong>跨尺度捕获几何结构</strong>。多尺度深度先验（MSDP）设计有效地处理了无人机图像中的极端尺度变化，同时保持了计算效率。</p>
+<ul>
+<li>==<strong>输入:</strong>
+网络主干（Backbone）提取出的多尺度特征金字塔 <span class="math display"><em>P</em> = {<em>P</em><sub>3</sub>, <em>P</em><sub>4</sub>, …, <em>P</em><sub>7</sub>}.</span>。==</li>
+<li><strong>过程:</strong>
+与传统深度估计需要一个庞大的解码器不同，DeCoDet非常轻量级。==它<strong>直接在每个尺度的特征图<code>Pn</code>上，通过几个小型的3x3卷积层（公式2中的M层卷积）处理特征，3x3
+卷积核在计算一个中心像素的新特征时，会同时观察它和它周围8个邻居像素。这使得模型能够理解局部区域内的空间关系、纹理和形状</strong>。**==</li>
+<li>对于深度估计而言，这是至关重要的。比如，要判断一个像素点的深度，模型需要看看它周围是不是一个平坦的墙面，或者是一个物体的边缘。这种局部信息只有通过大于1x1的卷积核（如3x3）才能有效捕捉。</li>
+<li>通过这些3×3卷积，模型将通用的图像特征，提炼和转化为了更适合用来判断深度的“深度感知特征”，它内部已经蕴含了丰富的关于物体远近的线索</li>
+<li><strong>==所以就是通过大卷积核来捕获上下文信息进而得出深度信息。==</strong></li>
+<li>==<strong>然后通过1×1卷积直接回归出对应尺度的深度图</strong><code>Dn</code>。==</li>
+<li>为什么要用1×1的卷积呢？为了降维和投影。经过第一步处理后，特征图通常有很多个<strong>通道
+(Channel)</strong>，比如256个。但是，我们最终需要的深度图，本质上是一张<strong>单通道</strong>的图像（每个像素位置只有一个代表深度的数值）。</li>
+<li>1x1卷积在这里扮演了一个“超级压缩机”的角色。它在每个像素位置上，将256个通道的特征值进行一次加权求和，最终“压缩”成一个单一的数值。这个数值，就是模型预测的该位置的深度。</li>
+</ul>
+<p><strong>目的</strong>：这一步的本质是<strong>“生成结果”</strong>。它不做复杂的空间信息提取，==只负责将已经优化好的、高维度的特征信息，<strong>映射（或转换）</strong>成我们最终需要的、低维度的深度图。==</p>
+<ul>
+<li><strong>输出:</strong> ==一<strong>系列多尺度的深度图
+<code>{D3, ..., D7}</code>。这些深度图就是所谓的“深度先验</strong>”，它们为下一步的动态调制提供了依据。==</li>
+</ul>
+<p><strong>3x3卷积负责“过程”</strong>：在空间维度上，通过大卷积核提取和优化用于深度估计的特征。</p>
+<p><strong>1x1卷积负责“结果”</strong>：在通道维度上，将这些优化好的多通道特征“压缩”成我们最终需要的单通道深度图。</p>
+<h4 id="step-2深度条件特征调制depth-conditioned-feature-modulation">Step
+2：深度条件特征调制(Depth-Conditioned Feature Modulation)：</h4>
+<p>在估计深度先验的基础上，引入深度条件内核(DCK)来自适应调制检测特征。</p>
+<p>1、(先生成卷积核大小)检测特征<span class="math display"><em>Y</em> ∈ <em>R</em><sup><em>H</em> × <em>W</em> × <em>C</em></sup></span>的位置<span class="math display">(<em>i</em>, <em>j</em>)</span>处的DCK<span class="math display"><em>K</em> ∈ <em>R</em><sup><em>K</em> × <em>K</em> × <em>G</em></sup></span>：</p>
+<p><span class="math display"><em>K</em><sub><em>i</em>, <em>j</em></sub> = <em>W</em><sub>2</sub> ⋅ <em>σ</em>(<em>W</em><sub>1</sub> ⋅ <em>D</em>[<em>i</em>, <em>j</em>]).</span></p>
+<p>这里，K表示生成的与深度相关的具有不同感受野的卷积核大小，G是共享一个核的组的数量，<span class="math display"><em>W</em><sub>1</sub> ∈ <em>R</em><sup><em>C</em>/<em>r</em> × <em>C</em>, <em>W</em></sup></span>，<span class="math display"><em>W</em><sub>2</sub> ∈ <em>R</em><sup>(<em>K</em><sup>2</sup><em>G</em>) × <em>C</em>/<em>r</em></sup></span>是两个全连接层。函数σ表示批量归一化和非线性激活函数，增强了表达能力。</p>
+<p>2、（开始调制特征）调制特征Y是通过深度自适应核计算的：</p>
+<p><span class="math display"><em>Y</em><sub><em>i</em>, <em>j</em>, <em>g</em></sub><sup>′</sup> = ∑<sub>(<em>u</em>, <em>v</em>) ∈ <em>Δ</em><em>K</em></sub><em>K</em><sub><em>i</em>, <em>j</em>, <em>u</em> + [<em>K</em>/2], <em>v</em> + [<em>K</em>/2], [<em>g</em><em>G</em>/<em>C</em>]</sub> ⊙ <em>Y</em><sub><em>i</em> + <em>u</em>, <em>j</em> + <em>v</em>, <em>g</em></sub>.</span></p>
+<p>这里，<span class="math display"><em>Δ</em><sub><em>K</em></sub> = [−[<em>K</em>/2], ..., [<em>K</em>/2]] × [−[<em>K</em>/2], ..., [<em>K</em>/2]] ⊂ <em>Z</em><sup>2</sup></span>指的是应用以某一位置为中心的核时，邻域内的偏移集（这里×表示笛卡尔积）。<span class="math display"><em>g</em> ∈ {1, 2, …, <em>G</em>}</span>表示组号。</p>
+<hr>
+<p>这个模块的目标是解决一个核心问题：传统的卷积网络用同一个卷积核(一个“模版”)去处理图像的每一个区域，这太“一视同仁”了。</p>
+<p>对于近处清晰的区域，<strong>希望卷积核能专注于提取细节和纹理。</strong></p>
+<p>对于远处、模糊、有雾霾的区域，<strong>希望卷积核能自动进行“去雾”和“增强”，并更多地依赖上下文信息。</strong></p>
+<p>这个模块的目的就是<strong>不再使用固定的卷积核，而是根据每个像素的深度信息，为它“量身定制”一个最合适的卷积核</strong>。</p>
+<p>==<strong>Step(1)、输入。</strong>两个输入：<strong>Det.Feature
+Y：</strong>来自特征金字塔的<strong>原始图像特征图</strong>。它包含了图像的内容信息（比如哪里有边缘、哪里有纹理），但它对深度不敏感。<strong>Depth
+Feature D</strong>:
+上一步生成的<strong>深度信息图</strong>。它不包含太多纹理细节，但它的每个像素值都代表了这个位置的<strong>远近（深度）</strong>。==</p>
+<p>==<strong>Step(2)、生成动态卷积核。</strong>==</p>
+<p>==<span class="math display"><em>K</em><sub><em>i</em>, <em>j</em></sub> = <em>W</em><sub>2</sub> ⋅ <em>σ</em>(<em>W</em><sub>1</sub> ⋅ <em>D</em>[<em>i</em>, <em>j</em>])</span>和图中的<strong>Kernel
+Generation</strong>。==</p>
+<p>==在图像的每一个位置 <code>[i,j]</code>，从深度图 <code>D</code>
+中取出该点的<strong>深度值
+<code>D[i,j]</code></strong>。然后，将这个深度值输入到一个非常小的、由两个全连接层（<code>W₁</code>
+和
+<code>W₂</code>）组成的神经网络中。这个小网络的输出，就是一个<strong>专门为位置
+<code>[i,j]</code> 定制的卷积核
+<code>Kᵢ,ⱼ</code></strong>。这个卷积核的大小是 <code>K x K</code>（比如
+3x3）。==</p>
+<p>如果 <code>D[i,j]</code> 的深度值是10米（近），生成一个卷积核
+<code>K_近</code>。</p>
+<p>如果另一个位置 <code>D[x,y]</code>
+的深度值是150米（远），就生成一个完全不同的卷积核
+<code>K_远</code>。</p>
+<p>==<strong><code>K_近</code> 的内部参数（权重）可能更擅长提取细节，而
+<code>K_远</code> 的参数可能更擅长去雾和锐化。</strong>
+这就是“深度条件（Depth-Conditioned）”的含义：<strong>用深度值作为条件，来决定卷积核的具体参数。</strong>==</p>
+<p>==<strong>Step(3)、应用动态卷积核调制特征。</strong>==</p>
+<p><span class="math display"><em>Y</em><sub><em>i</em>, <em>j</em>, <em>g</em></sub><sup>′</sup> = ∑<sub>(<em>u</em>, <em>v</em>) ∈ <em>Δ</em><em>K</em></sub><em>K</em><sub><em>i</em>, <em>j</em>, <em>u</em> + [<em>K</em>/2], <em>v</em> + [<em>K</em>/2], [<em>g</em><em>G</em>/<em>C</em>]</sub> ⊙ <em>Y</em><sub><em>i</em> + <em>u</em>, <em>j</em> + <em>v</em>, <em>g</em></sub>.</span></p>
+<p>==有了为每个位置 <code>(i,j)</code> 定制的卷积核
+<code>Kᵢ,ⱼ</code>。就像做标准卷积一样，将这个定制的卷积核
+<code>Kᵢ,jén</code> 应用到<strong>原始图像特征 <code>Y</code></strong>
+的相应位置 <code>(i,j)</code> 上。==</p>
+<p>==流程图中的 “Unfolding” 指的是在 <code>Y</code> 的
+<code>(i,j)</code> 位置取出一个 <code>K x K</code>
+大小的邻域（一个小方块），然后这个方块与我们刚生成的 <code>Kᵢ,ⱼ</code>
+进行<strong>逐元素乘积 (Element Product ⦿) 并求和
+(Σ)</strong>。这正是卷积的定义。==</p>
+<p>==<strong>Step(4)、得到最终结果。</strong>==</p>
+<p>==对 <code>Y</code>
+上的每一个位置都重复第2步和第3步，我们就得到了一个新的特征图
+<strong>Y’</strong>。==</p>
+<p>这个 <strong>Y’</strong>
+就是“被深度调制过的”智能特征图。远处的特征可能已经被增强，近处的特征可能被精炼。最后，这个更优质的特征图
+<code>Y'</code>
+被送入到最终的检测头（Head），去进行分类和定位，效果自然会更好。</p>
+<p><strong>Geometric awareness through explicit depth conditioning
+(通过显式深度条件获得几何感知)</strong></p>
+<ul>
+<li>解释：整个过程都是由深度图来驱动的，模型因此具备了对场景三维几何（远近、布局）的感知能力。</li>
+</ul>
+<p><strong>Spatial adaptivity via position-specific kernels
+(通过位置特定的卷积核实现空间自适应)</strong></p>
+<ul>
+<li>解释：模型为每个像素位置 <code>(i,j)</code>
+都生成了独一无二的卷积核，因此处理方式是空间自适应的，不是一成不变的。</li>
+</ul>
+<p><strong>Scale consistency through pyramidal feature alignment
+(通过金字塔特征对齐实现尺度一致性)</strong></p>
+<ul>
+<li>解释：这个操作是在特征金字塔的多个尺度上（P₃ 到
+P₇）独立进行的。这意味着无论物体因为距离远而显得小（在高层特征图上），还是因为距离近而显得大（在低层特征图上），模型都能用对应尺度的深度信息去进行恰当的处理，保证了对不同尺度物体处理的一致性。</li>
+</ul>
+<hr>
+<h4 id="step3具有尺度不变监督的渐进域微调-训练与优化">Step3：具有尺度不变监督的渐进域微调
+训练与优化</h4>
+<p><strong>由于清晰、模拟的朦胧和真实的朦胧数据分布之间的内在差异</strong>，为真实世界的朦胧无人机图像训练鲁棒的物体检测器是一项重大挑战。==虽然对合成数据的微调可能无法很好地推广到现实世界的场景，但仅对有限的现实世界朦胧数据进行训练通常会导致过度拟合==。为了弥补合成到真实领域的差距，我们提出了一种渐进式领域微调（PDFT）</p>
+<figure>
+<img src="/images/image-20250626170816673.png" alt="image-20250626170816673">
+<figcaption aria-hidden="true">image-20250626170816673</figcaption>
+</figure>
+<p>1）初步适应：我们<strong>使用在ImageNet上预训练的权重初始化我们的模型</strong>，<strong>并在我们的合成模糊数据集Ds上对其进行微调，同时仅冻结初始骨干层</strong>。这允许网络使其<strong>中级表示适应模拟不利天气条件的特征</strong>，弥合源（ImageNet）和中间（模拟雾霾）域之间的差距。</p>
+<hr>
+<p><strong>加载基础能力</strong>：模型先加载通过ImageNet学到的“通用视觉能力”。</p>
+<p><strong>固定底层基础</strong>：冻结（不更新）初始的骨干层，保住从ImageNet学到的最基础、最通用的特征提取能力（比如识别边缘、角点、颜色块）。</p>
+<p><strong>调整上层应用</strong>：让后面的层（中高层）在这些基础特征之上，继续学习，调整自己的参数，以便更好地理解和组合这些基础特征，从而适应合成雾霾数据集的特有模式（比如模糊的边缘、低对比度的纹理）。</p>
+<h5 id="为什么说这有助于弥合imagenet和合成域之间的差距">为什么说这有助于弥合ImageNet和合成域之间的差距？</h5>
+<h5 id="差距是什么-两个世界的语言不同"><strong>1. “差距”是什么？——
+两个世界的语言不同</strong></h5>
+<ul>
+<li><strong>ImageNet域
+(源域)</strong>：可以看作是一个“理想世界”。这里面的图片大多是<strong>清晰、高清、光照良好、对比度高</strong>的。模型在这个世界里学会了一套“视觉语言”，它习惯了从清晰的边缘和鲜艳的色彩中识别物体。</li>
+<li><strong>合成雾霾域
+(中间域)</strong>：这是一个“恶劣天气世界”。这里面的图片具有<strong>低对比度、颜色偏移、细节丢失、边缘模糊</strong>等特点。这里的“视觉语言”是模糊和退化的。</li>
+</ul>
+<p><strong>“域差距 (Domain Gap)”</strong>
+就好比一个只学过标准普通话的人（ImageNet模型），突然要去听懂带有浓重方言的讲话（雾霾图像）。他能听懂一些基本的字词（基础特征），但很难理解整句话的意思（识别物体）。</p>
+<h5 id="冻结与微调如何搭建桥梁">2、“冻结与微调”如何“搭建桥梁”？</h5>
+<ul>
+<li><strong>冻结的初始层 (Frozen Initial Layers)</strong>:
+<ul>
+<li>这相当于学习<strong>字母表 (A, B, C…)</strong>
+和<strong>最基本的词根</strong>。这些是所有英语文章的基础，是<strong>通用</strong>的。无论您是读儿童读物还是读法律合同，字母表本身是不会变的。</li>
+<li>ImageNet拥有上百万张多样化的图片，是学习这个“视觉字母表”（即边缘、角点、梯度等底层特征）的<strong>最佳教材</strong>。我们通过冻结初始层，实际上是在说：“<strong>你从ImageNet学到的这套‘字母表’非常完美和强大，请务必保留，不要改动它。</strong>”</li>
+</ul></li>
+<li><strong>微调的后续层 (Fine-tuned Later Layers)</strong>:
+<ul>
+<li>这相当于在掌握了字母表的基础上，去学习一个<strong>特定领域的专业词汇和语法</strong>。</li>
+<li><strong>ImageNet</strong>
+教会了模型如何将字母组合成简单的<strong>儿童读物词汇</strong>（比如”c-a-t”
+-&gt; “cat”）。</li>
+<li><strong>合成雾霾数据集</strong>
+则要求模型学会一套更复杂的<strong>“法律术语”</strong>。在雾霾图像中，“猫”不再是清晰的”c-a-t”组合，而可能是模糊的”c-a-t”、带有噪声的”c-a-t”。</li>
+<li>通过微调（训练）后面的层，我们让模型学会<strong>新的组合规则</strong>：“哦，原来在这种模糊、低对比度的情况下，这种看起来像‘模糊c’、‘模糊a’、‘模糊t’的组合，也应该被识别为‘cat’。”</li>
+</ul></li>
+</ul>
+<p><strong>所以，“弥合差距”的过程就是：</strong></p>
+<p>保留从ImageNet学到的、强大的、通用的<strong>底层特征提取能力</strong>（字母表），同时让模型的中高层网络去学习如何<strong>解读和组织</strong>这些底层特征，以适应新领域（雾霾域）的<strong>全新视觉表现形式</strong>（专业词汇和语法）。</p>
+<p>如果不这样做，直接用ImageNet模型处理雾霾图像，模型会因为“水土不服”而效果不佳。如果完全从零在雾霾数据集上训练，模型又因为数据量不够大而学不好底层的“视觉字母表”。因此，<strong>“冻结+微调”是最高效、最成功的“知识迁移”策略之一。</strong></p>
+<hr>
+<p>2）渐进式自适应：<strong>我们在现实世界的朦胧无人机数据集Dt上进一步微调模型</strong>，这次<strong>冻结了负责提取中低级特征的早期和中期骨干层</strong>。在这个阶段，我们还采用了降低的学习率。这种<strong>有针对性的微调允许网络使其更高级别的特征适应真实世界烟雾的细微差别</strong>，<strong>有效地将知识从模拟域转移到目标（真实烟雾）域</strong>，<strong>同时保留学习到的特征提取能力并减轻在较小的真实世界数据集上的过拟合。</strong></p>
+<hr>
+<p>合成域和真实域的差别仅仅体现在高层特征上吗？</p>
+<p>不完全是，但这种差别对高层特征的影响最大，两者之间最关键、最复杂、最影响最终判断的细微差别，主要体现在高层语义和整体场景的解读上。</p>
+<p>并且在真实数据稀少的情况下，<strong>只微调高层特征</strong>是一种“性价比”最高、最安全的策略。它既能让模型精准地适配真实世界的“最后一公里”的细微差别，又能最大程度地保留从合成数据中学到的宝贵通用知识，并有效避免过拟合。</p>
+<h5 id="合成雾霾和真实雾霾的差距在哪里">合成雾霾和真实雾霾的差距在哪里？</h5>
+<p>合成雾霾是基于完美的物理公式所生成的，它的特点是：<strong>均匀、理想化、模式单一</strong>。它能很好地模拟雾霾的共性，即“对比度下降”和“颜色偏移”。可以把它看作是学习了雾霾的<strong>“通用物理规律”</strong>.</p>
+<p>但是真实雾霾域，充满了各种<strong>不可预测的、复杂的变量</strong>。雾霾<strong>密度不均</strong>（有的地方浓，有的地方淡）、<strong>光照复杂</strong>（光线穿过不同浓度雾霾的散射效果）、<strong>独特的颗粒物</strong>（工业
+smog
+和自然水雾的视觉效果有差异）、以及<strong>相机传感器噪声</strong>。可以把它看作是<strong>“特定现实场景”</strong>，充满了各种细微的、公式无法完全描述的“杂项。</p>
+<h5 id="不同层次的特征对于差距的敏感度不同">不同层次的特征、对于差距的敏感度不同</h5>
+<p><strong>低、中级特征 (Low-to-Mid Level
+Features)</strong>：它们学的是边缘、角点、纹理、颜色块，以及由它们组成的物体部件（如车轮、窗户），无论是理想的合成雾，还是复杂的真实雾，它们对图像的<strong>基础影响是相似的</strong>——都会让“清晰的边缘”变成“模糊的边缘”，让“鲜艳的纹理”变成“低对比度的纹理”。模型在合成雾霾数据集上学到的如何<strong>从模糊图像中提取基础特征</strong>的能力，已经<strong>“足够好
+(Good
+Enough)”</strong>了。真实雾霾带来的这点“细微差别”，对这些基础特征提取的影响不是颠覆性的。比如，“模糊的轮子”在合成和真实数据中，其底层特征是高度相似的。</p>
+<p><strong>高级特征 (High-level
+Features)</strong>：学的是将中级特征（部件）组合成完整的物体，并理解物体与场景的<strong>整体关系、语义和上下文</strong>。</p>
+<p>真实雾霾的<strong>不均匀性</strong>可能会导致一个物体的某些部分比其他部分更模糊。模型的高层逻辑需要学会：“即使这个‘车’的一部分几乎看不清，但根据另一部分和周围环境，它仍然是一个整体”。</p>
+<p>真实光照和颗粒物带来的<strong>独特视觉伪影（Artifacts）</strong>，是合成数据里没有的。模型的高层语义需要学会<strong>忽略</strong>这些真实世界特有的“噪声”，而不是把它们误判为物体的一部分。</p>
+<p><strong>整体氛围和场景布局感</strong>在真实世界中更为复杂。模型需要调整其最高层的判断逻辑，来适应这种真实世界的“画风”。</p>
+<h5 id="为什么只微调高层">为什么只微调高层？</h5>
+<p><strong>防止过拟合 (Preventing
+Overfitting)</strong>：==网络的<strong>层级越低，参数量越大</strong>，它们构成了模型能力的地基。如果把这些底层和中层参数全部放开，在少量真实数据上训练，模型非常容易“死记硬背”，把这个小数据集的特点记得滚瓜烂熟，但在新的、没见过的真实数据上表现一塌糊涂。这就是<strong>过拟合</strong>。通过<strong>冻结大部分底层和中层参数</strong>，我们大大减少了需要训练的参数量，迫使模型只能进行非常有限的、针对性的微调。配合<strong>降低的学习率</strong>，确保这种微调是稳定而精细的。==</p>
+<p><strong>保留通用能力 (Preserving
+Generalization)</strong>：模型已经在大量的合成数据上，学习了非常宝贵的、关于“如何在雾天提取特征”的<strong>通用知识</strong>。这些知识存储在底层和中层网络中。如果我们放开这些层，在少量真实数据上训练，很可能会因为数据中的某些巧合或噪声，而“污染”或“忘记”掉之前学到的通用知识，这被称为<strong>“灾难性遗忘”</strong>。冻结它们，就是为了<strong>保护这些来之不易的、泛化能力强的特征提取能力</strong>。</p>
+<hr>
+<p>3）深度一致鲁棒学习：为了确保<strong>深度信息的有效学习，我们采用了集成检测和深度估计目标的损失函数。</strong>==为了能够从不完美的、有噪声的伪深度图中稳定、有效地学习到深度信息，我们提出了尺度不变翻新损失（SIRLoss）==，它<strong>利用了一个尺度不变的误差度量应用于对数转换的深度值。</strong></p>
+<p><strong>Scale Invariant Refurbishment Loss
+(SIRLoss)(尺度不变翻新损失)</strong></p>
+<p><strong>1、标签翻新（Lable
+Refurbishment）如何应对不完美的答案？</strong></p>
+<p><strong>面临的问题</strong>：模型学习所依赖的“真值”深度图
+(<code>y*</code>) 是“伪标签
+(pseudo-label)”，可能来自其他算法估算或时序平均，里面包含了错误和噪声。如果强迫模型100%去拟合一个错误的答案，模型也会学坏。</p>
+<p><strong>解决方案</strong>：<strong>不要完全相信这个“标准答案”！</strong>
+我们来创造一个更可靠、更值得学习的“新答案”</p>
+<p>这个<strong>“翻新”后的新深度标签</strong>，是**“伪标签y*”和“模型自己的预测y”的加权平均**。</p>
+<p><span class="math display"><mjx-container class="MathJax" jax="SVG" display="true"><svg style="vertical-align: -2.697ex;" xmlns="http://www.w3.org/2000/svg" width="36.465ex" height="5.733ex" role="img" focusable="false" viewbox="0 -1342 16117.6 2534.2"><g stroke="currentColor" fill="currentColor" stroke-width="0" transform="scale(1,-1)"><g data-mml-node="math"><g data-mml-node="msub"><g data-mml-node="mi"><path data-c="1D43F" d="M228 637Q194 637 192 641Q191 643 191 649Q191 673 202 682Q204 683 217 683Q271 680 344 680Q485 680 506 683H518Q524 677 524 674T522 656Q517 641 513 637H475Q406 636 394 628Q387 624 380 600T313 336Q297 271 279 198T252 88L243 52Q243 48 252 48T311 46H328Q360 46 379 47T428 54T478 72T522 106T564 161Q580 191 594 228T611 270Q616 273 628 273H641Q647 264 647 262T627 203T583 83T557 9Q555 4 553 3T537 0T494 -1Q483 -1 418 -1T294 0H116Q32 0 32 10Q32 17 34 24Q39 43 44 45Q48 46 59 46H65Q92 46 125 49Q139 52 144 61Q147 65 216 339T285 628Q285 635 228 637Z"/></g><g data-mml-node="TeXAtom" transform="translate(714,-150) scale(0.707)" data-mjx-texclass="ORD"><g data-mml-node="mi"><path data-c="1D437" d="M287 628Q287 635 230 637Q207 637 200 638T193 647Q193 655 197 667T204 682Q206 683 403 683Q570 682 590 682T630 676Q702 659 752 597T803 431Q803 275 696 151T444 3L430 1L236 0H125H72Q48 0 41 2T33 11Q33 13 36 25Q40 41 44 43T67 46Q94 46 127 49Q141 52 146 61Q149 65 218 339T287 628ZM703 469Q703 507 692 537T666 584T629 613T590 629T555 636Q553 636 541 636T512 636T479 637H436Q392 637 386 627Q384 623 313 339T242 52Q242 48 253 48T330 47Q335 47 349 47T373 46Q499 46 581 128Q617 164 640 212T683 339T703 469Z"/></g><g data-mml-node="mi" transform="translate(828,0)"><path data-c="1D452" d="M39 168Q39 225 58 272T107 350T174 402T244 433T307 442H310Q355 442 388 420T421 355Q421 265 310 237Q261 224 176 223Q139 223 138 221Q138 219 132 186T125 128Q125 81 146 54T209 26T302 45T394 111Q403 121 406 121Q410 121 419 112T429 98T420 82T390 55T344 24T281 -1T205 -11Q126 -11 83 42T39 168ZM373 353Q367 405 305 405Q272 405 244 391T199 357T170 316T154 280T149 261Q149 260 169 260Q282 260 327 284T373 353Z"/></g><g data-mml-node="mi" transform="translate(1294,0)"><path data-c="1D45D" d="M23 287Q24 290 25 295T30 317T40 348T55 381T75 411T101 433T134 442Q209 442 230 378L240 387Q302 442 358 442Q423 442 460 395T497 281Q497 173 421 82T249 -10Q227 -10 210 -4Q199 1 187 11T168 28L161 36Q160 35 139 -51T118 -138Q118 -144 126 -145T163 -148H188Q194 -155 194 -157T191 -175Q188 -187 185 -190T172 -194Q170 -194 161 -194T127 -193T65 -192Q-5 -192 -24 -194H-32Q-39 -187 -39 -183Q-37 -156 -26 -148H-6Q28 -147 33 -136Q36 -130 94 103T155 350Q156 355 156 364Q156 405 131 405Q109 405 94 377T71 316T59 280Q57 278 43 278H29Q23 284 23 287ZM178 102Q200 26 252 26Q282 26 310 49T356 107Q374 141 392 215T411 325V331Q411 405 350 405Q339 405 328 402T306 393T286 380T269 365T254 350T243 336T235 326L232 322Q232 321 229 308T218 264T204 212Q178 106 178 102Z"/></g></g></g><g data-mml-node="mo" transform="translate(2312.4,0)"><path data-c="3D" d="M56 347Q56 360 70 367H707Q722 359 722 347Q722 336 708 328L390 327H72Q56 332 56 347ZM56 153Q56 168 72 173H708Q722 163 722 153Q722 140 707 133H70Q56 140 56 153Z"/></g><g data-mml-node="mfrac" transform="translate(3368.2,0)"><g data-mml-node="mn" transform="translate(270,676)"><path data-c="31" d="M213 578L200 573Q186 568 160 563T102 556H83V602H102Q149 604 189 617T245 641T273 663Q275 666 285 666Q294 666 302 660V361L303 61Q310 54 315 52T339 48T401 46H427V0H416Q395 3 257 3Q121 3 100 0H88V46H114Q136 46 152 46T177 47T193 50T201 52T207 57T213 61V578Z"/></g><g data-mml-node="mi" transform="translate(220,-686)"><path data-c="1D45B" d="M21 287Q22 293 24 303T36 341T56 388T89 425T135 442Q171 442 195 424T225 390T231 369Q231 367 232 367L243 378Q304 442 382 442Q436 442 469 415T503 336T465 179T427 52Q427 26 444 26Q450 26 453 27Q482 32 505 65T540 145Q542 153 560 153Q580 153 580 145Q580 144 576 130Q568 101 554 73T508 17T439 -10Q392 -10 371 17T350 73Q350 92 386 193T423 345Q423 404 379 404H374Q288 404 229 303L222 291L189 157Q156 26 151 16Q138 -11 108 -11Q95 -11 87 -5T76 7T74 17Q74 30 112 180T152 343Q153 348 153 366Q153 405 129 405Q91 405 66 305Q60 285 60 284Q58 278 41 278H27Q21 284 21 287Z"/></g><rect width="800" height="60" x="120" y="220"/></g><g data-mml-node="munder" transform="translate(4574.9,0)"><g data-mml-node="mo"><path data-c="2211" d="M60 948Q63 950 665 950H1267L1325 815Q1384 677 1388 669H1348L1341 683Q1320 724 1285 761Q1235 809 1174 838T1033 881T882 898T699 902H574H543H251L259 891Q722 258 724 252Q725 250 724 246Q721 243 460 -56L196 -356Q196 -357 407 -357Q459 -357 548 -357T676 -358Q812 -358 896 -353T1063 -332T1204 -283T1307 -196Q1328 -170 1348 -124H1388Q1388 -125 1381 -145T1356 -210T1325 -294L1267 -449L666 -450Q64 -450 61 -448Q55 -446 55 -439Q55 -437 57 -433L590 177Q590 178 557 222T452 366T322 544L56 909L55 924Q55 945 60 948Z"/></g><g data-mml-node="TeXAtom" transform="translate(600,-1084.4) scale(0.707)" data-mjx-texclass="ORD"><g data-mml-node="mi"><path data-c="1D456" d="M184 600Q184 624 203 642T247 661Q265 661 277 649T290 619Q290 596 270 577T226 557Q211 557 198 567T184 600ZM21 287Q21 295 30 318T54 369T98 420T158 442Q197 442 223 419T250 357Q250 340 236 301T196 196T154 83Q149 61 149 51Q149 26 166 26Q175 26 185 29T208 43T235 78T260 137Q263 149 265 151T282 153Q302 153 302 143Q302 135 293 112T268 61T223 11T161 -11Q129 -11 102 10T74 74Q74 91 79 106T122 220Q160 321 166 341T173 380Q173 404 156 404H154Q124 404 99 371T61 287Q60 286 59 284T58 281T56 279T53 278T49 278T41 278H27Q21 284 21 287Z"/></g></g></g><g data-mml-node="mo" transform="translate(6018.9,0)"><path data-c="28" d="M94 250Q94 319 104 381T127 488T164 576T202 643T244 695T277 729T302 750H315H319Q333 750 333 741Q333 738 316 720T275 667T226 581T184 443T167 250T184 58T225 -81T274 -167T316 -220T333 -241Q333 -250 318 -250H315H302L274 -226Q180 -141 137 -14T94 250Z"/></g><g data-mml-node="mi" transform="translate(6407.9,0)"><path data-c="394" d="M51 0Q46 4 46 7Q46 9 215 357T388 709Q391 716 416 716Q439 716 444 709Q447 705 616 357T786 7Q786 4 781 0H51ZM507 344L384 596L137 92L383 91H630Q630 93 507 344Z"/></g><g data-mml-node="msub" transform="translate(7240.9,0)"><g data-mml-node="mi"><path data-c="1D451" d="M366 683Q367 683 438 688T511 694Q523 694 523 686Q523 679 450 384T375 83T374 68Q374 26 402 26Q411 27 422 35Q443 55 463 131Q469 151 473 152Q475 153 483 153H487H491Q506 153 506 145Q506 140 503 129Q490 79 473 48T445 8T417 -8Q409 -10 393 -10Q359 -10 336 5T306 36L300 51Q299 52 296 50Q294 48 292 46Q233 -10 172 -10Q117 -10 75 30T33 157Q33 205 53 255T101 341Q148 398 195 420T280 442Q336 442 364 400Q369 394 369 396Q370 400 396 505T424 616Q424 629 417 632T378 637H357Q351 643 351 645T353 664Q358 683 366 683ZM352 326Q329 405 277 405Q242 405 210 374T160 293Q131 214 119 129Q119 126 119 118T118 106Q118 61 136 44T179 26Q233 26 290 98L298 109L352 326Z"/></g><g data-mml-node="TeXAtom" transform="translate(553,-150) scale(0.707)" data-mjx-texclass="ORD"><g data-mml-node="mi"><path data-c="1D456" d="M184 600Q184 624 203 642T247 661Q265 661 277 649T290 619Q290 596 270 577T226 557Q211 557 198 567T184 600ZM21 287Q21 295 30 318T54 369T98 420T158 442Q197 442 223 419T250 357Q250 340 236 301T196 196T154 83Q149 61 149 51Q149 26 166 26Q175 26 185 29T208 43T235 78T260 137Q263 149 265 151T282 153Q302 153 302 143Q302 135 293 112T268 61T223 11T161 -11Q129 -11 102 10T74 74Q74 91 79 106T122 220Q160 321 166 341T173 380Q173 404 156 404H154Q124 404 99 371T61 287Q60 286 59 284T58 281T56 279T53 278T49 278T41 278H27Q21 284 21 287Z"/></g></g></g><g data-mml-node="msup" transform="translate(8087.8,0)"><g data-mml-node="mo"><path data-c="29" d="M60 749L64 750Q69 750 74 750H86L114 726Q208 641 251 514T294 250Q294 182 284 119T261 12T224 -76T186 -143T145 -194T113 -227T90 -246Q87 -249 86 -250H74Q66 -250 63 -250T58 -247T55 -238Q56 -237 66 -225Q221 -64 221 250T66 725Q56 737 55 738Q55 746 60 749Z"/></g><g data-mml-node="TeXAtom" transform="translate(422,413) scale(0.707)" data-mjx-texclass="ORD"><g data-mml-node="mn"><path data-c="32" d="M109 429Q82 429 66 447T50 491Q50 562 103 614T235 666Q326 666 387 610T449 465Q449 422 429 383T381 315T301 241Q265 210 201 149L142 93L218 92Q375 92 385 97Q392 99 409 186V189H449V186Q448 183 436 95T421 3V0H50V19V31Q50 38 56 46T86 81Q115 113 136 137Q145 147 170 174T204 211T233 244T261 278T284 308T305 340T320 369T333 401T340 431T343 464Q343 527 309 573T212 619Q179 619 154 602T119 569T109 550Q109 549 114 549Q132 549 151 535T170 489Q170 464 154 447T109 429Z"/></g></g></g><g data-mml-node="mo" transform="translate(9135.6,0)"><path data-c="2212" d="M84 237T84 250T98 270H679Q694 262 694 250T679 230H98Q84 237 84 250Z"/></g><g data-mml-node="mfrac" transform="translate(10135.8,0)"><g data-mml-node="mn" transform="translate(488.3,676)"><path data-c="31" d="M213 578L200 573Q186 568 160 563T102 556H83V602H102Q149 604 189 617T245 641T273 663Q275 666 285 666Q294 666 302 660V361L303 61Q310 54 315 52T339 48T401 46H427V0H416Q395 3 257 3Q121 3 100 0H88V46H114Q136 46 152 46T177 47T193 50T201 52T207 57T213 61V578Z"/></g><g data-mml-node="msup" transform="translate(220,-719.9)"><g data-mml-node="mi"><path data-c="1D45B" d="M21 287Q22 293 24 303T36 341T56 388T89 425T135 442Q171 442 195 424T225 390T231 369Q231 367 232 367L243 378Q304 442 382 442Q436 442 469 415T503 336T465 179T427 52Q427 26 444 26Q450 26 453 27Q482 32 505 65T540 145Q542 153 560 153Q580 153 580 145Q580 144 576 130Q568 101 554 73T508 17T439 -10Q392 -10 371 17T350 73Q350 92 386 193T423 345Q423 404 379 404H374Q288 404 229 303L222 291L189 157Q156 26 151 16Q138 -11 108 -11Q95 -11 87 -5T76 7T74 17Q74 30 112 180T152 343Q153 348 153 366Q153 405 129 405Q91 405 66 305Q60 285 60 284Q58 278 41 278H27Q21 284 21 287Z"/></g><g data-mml-node="TeXAtom" transform="translate(633,289) scale(0.707)" data-mjx-texclass="ORD"><g data-mml-node="mn"><path data-c="32" d="M109 429Q82 429 66 447T50 491Q50 562 103 614T235 666Q326 666 387 610T449 465Q449 422 429 383T381 315T301 241Q265 210 201 149L142 93L218 92Q375 92 385 97Q392 99 409 186V189H449V186Q448 183 436 95T421 3V0H50V19V31Q50 38 56 46T86 81Q115 113 136 137Q145 147 170 174T204 211T233 244T261 278T284 308T305 340T320 369T333 401T340 431T343 464Q343 527 309 573T212 619Q179 619 154 602T119 569T109 550Q109 549 114 549Q132 549 151 535T170 489Q170 464 154 447T109 429Z"/></g></g></g><rect width="1236.6" height="60" x="120" y="220"/></g><g data-mml-node="mo" transform="translate(11612.4,0)"><path data-c="28" d="M94 250Q94 319 104 381T127 488T164 576T202 643T244 695T277 729T302 750H315H319Q333 750 333 741Q333 738 316 720T275 667T226 581T184 443T167 250T184 58T225 -81T274 -167T316 -220T333 -241Q333 -250 318 -250H315H302L274 -226Q180 -141 137 -14T94 250Z"/></g><g data-mml-node="munder" transform="translate(12001.4,0)"><g data-mml-node="mo"><path data-c="2211" d="M60 948Q63 950 665 950H1267L1325 815Q1384 677 1388 669H1348L1341 683Q1320 724 1285 761Q1235 809 1174 838T1033 881T882 898T699 902H574H543H251L259 891Q722 258 724 252Q725 250 724 246Q721 243 460 -56L196 -356Q196 -357 407 -357Q459 -357 548 -357T676 -358Q812 -358 896 -353T1063 -332T1204 -283T1307 -196Q1328 -170 1348 -124H1388Q1388 -125 1381 -145T1356 -210T1325 -294L1267 -449L666 -450Q64 -450 61 -448Q55 -446 55 -439Q55 -437 57 -433L590 177Q590 178 557 222T452 366T322 544L56 909L55 924Q55 945 60 948Z"/></g><g data-mml-node="TeXAtom" transform="translate(600,-1084.4) scale(0.707)" data-mjx-texclass="ORD"><g data-mml-node="mi"><path data-c="1D456" d="M184 600Q184 624 203 642T247 661Q265 661 277 649T290 619Q290 596 270 577T226 557Q211 557 198 567T184 600ZM21 287Q21 295 30 318T54 369T98 420T158 442Q197 442 223 419T250 357Q250 340 236 301T196 196T154 83Q149 61 149 51Q149 26 166 26Q175 26 185 29T208 43T235 78T260 137Q263 149 265 151T282 153Q302 153 302 143Q302 135 293 112T268 61T223 11T161 -11Q129 -11 102 10T74 74Q74 91 79 106T122 220Q160 321 166 341T173 380Q173 404 156 404H154Q124 404 99 371T61 287Q60 286 59 284T58 281T56 279T53 278T49 278T41 278H27Q21 284 21 287Z"/></g></g></g><g data-mml-node="mi" transform="translate(13612.1,0)"><path data-c="394" d="M51 0Q46 4 46 7Q46 9 215 357T388 709Q391 716 416 716Q439 716 444 709Q447 705 616 357T786 7Q786 4 781 0H51ZM507 344L384 596L137 92L383 91H630Q630 93 507 344Z"/></g><g data-mml-node="msub" transform="translate(14445.1,0)"><g data-mml-node="mi"><path data-c="1D451" d="M366 683Q367 683 438 688T511 694Q523 694 523 686Q523 679 450 384T375 83T374 68Q374 26 402 26Q411 27 422 35Q443 55 463 131Q469 151 473 152Q475 153 483 153H487H491Q506 153 506 145Q506 140 503 129Q490 79 473 48T445 8T417 -8Q409 -10 393 -10Q359 -10 336 5T306 36L300 51Q299 52 296 50Q294 48 292 46Q233 -10 172 -10Q117 -10 75 30T33 157Q33 205 53 255T101 341Q148 398 195 420T280 442Q336 442 364 400Q369 394 369 396Q370 400 396 505T424 616Q424 629 417 632T378 637H357Q351 643 351 645T353 664Q358 683 366 683ZM352 326Q329 405 277 405Q242 405 210 374T160 293Q131 214 119 129Q119 126 119 118T118 106Q118 61 136 44T179 26Q233 26 290 98L298 109L352 326Z"/></g><g data-mml-node="TeXAtom" transform="translate(553,-150) scale(0.707)" data-mjx-texclass="ORD"><g data-mml-node="mi"><path data-c="1D456" d="M184 600Q184 624 203 642T247 661Q265 661 277 649T290 619Q290 596 270 577T226 557Q211 557 198 567T184 600ZM21 287Q21 295 30 318T54 369T98 420T158 442Q197 442 223 419T250 357Q250 340 236 301T196 196T154 83Q149 61 149 51Q149 26 166 26Q175 26 185 29T208 43T235 78T260 137Q263 149 265 151T282 153Q302 153 302 143Q302 135 293 112T268 61T223 11T161 -11Q129 -11 102 10T74 74Q74 91 79 106T122 220Q160 321 166 341T173 380Q173 404 156 404H154Q124 404 99 371T61 287Q60 286 59 284T58 281T56 279T53 278T49 278T41 278H27Q21 284 21 287Z"/></g></g></g><g data-mml-node="msup" transform="translate(15292,0)"><g data-mml-node="mo"><path data-c="29" d="M60 749L64 750Q69 750 74 750H86L114 726Q208 641 251 514T294 250Q294 182 284 119T261 12T224 -76T186 -143T145 -194T113 -227T90 -246Q87 -249 86 -250H74Q66 -250 63 -250T58 -247T55 -238Q56 -237 66 -225Q221 -64 221 250T66 725Q56 737 55 738Q55 746 60 749Z"/></g><g data-mml-node="TeXAtom" transform="translate(422,413) scale(0.707)" data-mjx-texclass="ORD"><g data-mml-node="mn"><path data-c="32" d="M109 429Q82 429 66 447T50 491Q50 562 103 614T235 666Q326 666 387 610T449 465Q449 422 429 383T381 315T301 241Q265 210 201 149L142 93L218 92Q375 92 385 97Q392 99 409 186V189H449V186Q448 183 436 95T421 3V0H50V19V31Q50 38 56 46T86 81Q115 113 136 137Q145 147 170 174T204 211T233 244T261 278T284 308T305 340T320 369T333 401T340 431T343 464Q343 527 309 573T212 619Q179 619 154 602T119 569T109 550Q109 549 114 549Q132 549 151 535T170 489Q170 464 154 447T109 429Z"/></g></g></g></g></g></svg></mjx-container></span></p>
+<p>这里的
+<code>α = 0.7</code>，意味着：我们<strong>七分相信</strong>那个不完美的“标准答案”
+<code>y*</code>，<strong>三分相信</strong>模型当前的预测
+<code>yᵢ</code></p>
+<p>其中<span class="math display"><em>Δ</em><em>d</em><sub><em>i</em></sub> = log (<em>y</em><sub><em>i</em></sub>) − log (<em>α</em><em>y</em><sub><em>i</em></sub><sup>*</sup> + (1 − <em>α</em>)<em>y</em><sub><em>i</em></sub>)</span>，α控制伪标签置信度。</p>
+<p>比如在做一套练习题，但手上的参考答案 <code>y*</code>
+可能有错误。一个聪明的学生 <code>yᵢ</code>
+不会盲目照抄。当他自己的答案和参考答案不一样时，他会进行权衡。这里的策略就是，最终让他学习的目标，是70%参考答案
++
+30%自己答案的结合体。这可以<strong>减小错误答案对学习过程的冲击</strong>，让训练更稳定。</p>
+<p><strong>2、尺度不变” (Scale Invariant) -
+应该学习深度的什么？</strong></p>
+<p><strong>面临的问题</strong>：直接比较深度值的差异（比如用均方误差MSE）是有问题的。</p>
+<p>场景A：一个物体真实深度100米，预测成110米，误差10米。</p>
+<p>场景B：一个物体真实深度20米，预测成30米，误差也是10米。</p>
+<p>显然，场景B的错误要严重得多，但简单的损失函数会认为它们一样差。</p>
+<p><strong>解决方案</strong>：我们不应该过多关注<strong>绝对的深度数值</strong>，而应该更关注<strong>场景的整体3D结构和相对深度关系</strong>（比如，A比B远，C比D远两倍等）。</p>
+<p>==1、<strong>对数变换 (Log
+Transformation)</strong>：在计算差异前，先把所有深度值取对数
+<code>log(y)</code>。<code>log(110) - log(100)</code> 的差值远小于
+<code>log(30) - log(20)</code>
+的差值。这使得损失函数自动地更关注近处物体的相对误差，这在自动驾驶等场景中至关重要。==</p>
+<p>==2、<strong>特定的损失函数形式</strong>：公式
+<code>L_Dep = (1/n)Σ(Δdᵢ)² - (1/n²) (Σ Δdᵢ)²</code>
+是一个计算<strong>方差</strong>的经典形式（<code>Var(X) = E[X²] - (E[X])²</code>）。它惩罚的不是
+<code>Δdᵢ</code> (对数空间差值)
+的平均值，而是它们的<strong>离散程度（方差）</strong>。==</p>
+<p>==这意味着，模型预测的整个深度图，即使整体上比“翻新标签”深了一点或浅了一点（平均差值不为零），只要<strong>内部的相对结构</strong>（比如哪里陡峭、哪里平坦）保持得很好（差值的方差小），损失函数的值也会很小。==</p>
+<p>==<strong>比较的是整体的深度趋势(内部结构)，而不是深度值。</strong>==</p>
+<h5 id="总结"><strong>总结：</strong></h5>
+<p>为了让模型能从有噪声的伪深度图中进行鲁棒的学习，我们设计了一个名为
+<strong>SIRLoss</strong> 的特殊损失函数。它的智能之处在于：</p>
+<ol type="1">
+<li><strong>不盲从</strong>：它不直接学习给定的、可能有错的伪深度标签
+<code>y*</code>，而是学习一个由 <code>y*</code> 和模型自身预测
+<code>y</code>
+动态混合而成的、更可靠的<strong>“翻新”标签</strong>。</li>
+<li><strong>抓重点</strong>：它不要求模型预测出完全准确的绝对深度值，而是通过<strong>对数变换</strong>和<strong>惩罚方差</strong>的设计，迫使模型重点学习场景的<strong>整体3D结构和相对深度关系</strong>，这使得学习对整体的尺度变化不那么敏感（即尺度不变）。</li>
+</ol>
+<h4 id="尺度不变的误差度量">尺度不变的误差度量？</h4>
+<p>详细解释一下“尺度不变的误差度量 (Scale-Invariant Error
+Metric)”是怎么做的。这在深度估计任务中是一个非常核心且常用的技术，尤其是在处理由单目摄像头（单个摄像头）预测出的深度图时。</p>
+<h3 id="为什么需要尺度不变">为什么需要“尺度不变”？</h3>
+<p>首先，要理解为什么这个东西很重要。</p>
+<p>当模型只通过<strong>一张2D图片</strong>来预测深度时，它会面临一个固有的<strong>尺度模糊性
+(Scale Ambiguity)</strong> 问题。</p>
+<p>想象一下，你看到一张照片，里面有一辆车。</p>
+<ul>
+<li>==这可能是一辆<strong>真实的汽车</strong>，距离你<strong>50米</strong>远。==</li>
+<li>==也可能是一个<strong>玩具车模型</strong>，距离你只有<strong>1米</strong>远。==</li>
+</ul>
+<p>在照片上，它们看起来可能一模一样！==模型只看照片，无法知道场景的<strong>绝对尺度</strong>（即真实的米、厘米等单位）。因此，它预测出的深度图<span class="math display"><em>y</em><sub><em>p</em><em>r</em><em>e</em><em>d</em></sub></span>和真实的深度图<span class="math display"><em>y</em><sub><em>g</em><em>t</em></sub></span>（Ground
+Truth）之间，通常只存在一个<strong>比例关系</strong>，而不是绝对数值上的相等。==</p>
+<p>即： <span class="math inline"><em>y</em><sub><em>g</em><em>t</em></sub> ≈ <em>s</em> * <em>y</em><sub><em>p</em><em>r</em><em>e</em><em>d</em></sub></span></p>
+<p>其中 <code>s</code> 是一个未知的缩放因子。</p>
+<p>==如果我们使用传统的损失函数，比如均方误差 (MSE) <span class="math inline"><em>L</em> = ∑(<em>y</em><sub><em>g</em><em>t</em></sub> − <em>y</em><sub><em>p</em><em>r</em><em>e</em><em>d</em></sub>)<sup>2</sup></span>，就会出大问题。因为<span class="math inline"><em>y</em><sub><em>p</em><em>r</em><em>e</em><em>d</em></sub></span>和<span class="math inline"><em>y</em><sub><em>g</em><em>t</em></sub></span>的绝对数值可能差很远（比如一个是以米为单位，一个是无单位的相对值），计算出的损失会非常大，而且方向是错误的。模型会被惩罚，因为它没有猜对那个根本无法得知的绝对尺度<code>s</code>。==</p>
+<p>因此，我们==需要一种<strong>只惩罚“相对深度关系”错误，而不惩罚“绝对尺度”差异</strong>的损失函数。==这就是“尺度不变误差度量”的由来。</p>
+<h3 id="核心思想比较比例而非绝对值">核心思想：==比较“比例”而非“绝对值”==</h3>
+<p>实现尺度不变的核心思想是：==<strong>在计算误差之前，先把预测值和真实值对齐，或者转换到一个对尺度不敏感的空间里去。</strong>==</p>
+<p>下面介绍几种最主流的实现方式，论文中使用的 <code>SIRLoss</code>
+就是其中一种的变体。</p>
+<h4 id="对数空间差值-logarithmic-difference">1. 对数空间差值
+(Logarithmic Difference)</h4>
+<p>这是最常用、最基础的方法。==与其比较 <code>y_gt</code> 和
+<code>y_pred</code> 的差，不如比较它们<strong>对数</strong>的差==。</p>
+<p>令 <code>d_i = log(y_pred_i) - log(y_gt_i)</code>，其中
+<code>i</code> 代表第<code>i</code>个像素。</p>
+<p>我们来看这个差值 <code>d_i</code>
+的性质。如果预测值和真实值只差一个比例因子 <code>s</code>，即
+<code>y_gt_i = s * y_pred_i</code>，那么：
+<code>log(y_gt_i) = log(s * y_pred_i) = log(s) + log(y_pred_i)</code>
+所以，<code>d_i = log(y_pred_i) - (log(s) + log(y_pred_i)) = -log(s)</code></p>
+<p>你会发现，==对于所有像素<code>i</code>，这个差值<code>d_i</code>都是一个<strong>常数</strong>
+<code>-log(s)</code>！它不再依赖于每个像素的具体深度值，只和那个全局的缩放因子<code>s</code>有关。==</p>
+<p>基于这个思想，可以构造出不同的损失函数：</p>
+<ul>
+<li><p>尺度不变MSE (Scale-invariant MSE):</p>
+<p><span class="math inline"><mjx-container class="MathJax" jax="SVG"><svg style="vertical-align: -0.871ex;" xmlns="http://www.w3.org/2000/svg" width="26.15ex" height="2.828ex" role="img" focusable="false" viewbox="0 -864.9 11558.2 1250.1"><g stroke="currentColor" fill="currentColor" stroke-width="0" transform="scale(1,-1)"><g data-mml-node="math"><g data-mml-node="mi"><path data-c="1D43F" d="M228 637Q194 637 192 641Q191 643 191 649Q191 673 202 682Q204 683 217 683Q271 680 344 680Q485 680 506 683H518Q524 677 524 674T522 656Q517 641 513 637H475Q406 636 394 628Q387 624 380 600T313 336Q297 271 279 198T252 88L243 52Q243 48 252 48T311 46H328Q360 46 379 47T428 54T478 72T522 106T564 161Q580 191 594 228T611 270Q616 273 628 273H641Q647 264 647 262T627 203T583 83T557 9Q555 4 553 3T537 0T494 -1Q483 -1 418 -1T294 0H116Q32 0 32 10Q32 17 34 24Q39 43 44 45Q48 46 59 46H65Q92 46 125 49Q139 52 144 61Q147 65 216 339T285 628Q285 635 228 637Z"/></g><g data-mml-node="mo" transform="translate(958.8,0)"><path data-c="3D" d="M56 347Q56 360 70 367H707Q722 359 722 347Q722 336 708 328L390 327H72Q56 332 56 347ZM56 153Q56 168 72 173H708Q722 163 722 153Q722 140 707 133H70Q56 140 56 153Z"/></g><g data-mml-node="mfrac" transform="translate(2014.6,0)"><g data-mml-node="mn" transform="translate(255.4,394) scale(0.707)"><path data-c="31" d="M213 578L200 573Q186 568 160 563T102 556H83V602H102Q149 604 189 617T245 641T273 663Q275 666 285 666Q294 666 302 660V361L303 61Q310 54 315 52T339 48T401 46H427V0H416Q395 3 257 3Q121 3 100 0H88V46H114Q136 46 152 46T177 47T193 50T201 52T207 57T213 61V578Z"/></g><g data-mml-node="mi" transform="translate(220,-345) scale(0.707)"><path data-c="1D45B" d="M21 287Q22 293 24 303T36 341T56 388T89 425T135 442Q171 442 195 424T225 390T231 369Q231 367 232 367L243 378Q304 442 382 442Q436 442 469 415T503 336T465 179T427 52Q427 26 444 26Q450 26 453 27Q482 32 505 65T540 145Q542 153 560 153Q580 153 580 145Q580 144 576 130Q568 101 554 73T508 17T439 -10Q392 -10 371 17T350 73Q350 92 386 193T423 345Q423 404 379 404H374Q288 404 229 303L222 291L189 157Q156 26 151 16Q138 -11 108 -11Q95 -11 87 -5T76 7T74 17Q74 30 112 180T152 343Q153 348 153 366Q153 405 129 405Q91 405 66 305Q60 285 60 284Q58 278 41 278H27Q21 284 21 287Z"/></g><rect width="624.3" height="60" x="120" y="220"/></g><g data-mml-node="munder" transform="translate(3045.5,0)"><g data-mml-node="mo"><path data-c="2211" d="M61 748Q64 750 489 750H913L954 640Q965 609 976 579T993 533T999 516H979L959 517Q936 579 886 621T777 682Q724 700 655 705T436 710H319Q183 710 183 709Q186 706 348 484T511 259Q517 250 513 244L490 216Q466 188 420 134T330 27L149 -187Q149 -188 362 -188Q388 -188 436 -188T506 -189Q679 -189 778 -162T936 -43Q946 -27 959 6H999L913 -249L489 -250Q65 -250 62 -248Q56 -246 56 -239Q56 -234 118 -161Q186 -81 245 -11L428 206Q428 207 242 462L57 717L56 728Q56 744 61 748Z"/></g><g data-mml-node="mi" transform="translate(1089,-285.4) scale(0.707)"><path data-c="1D456" d="M184 600Q184 624 203 642T247 661Q265 661 277 649T290 619Q290 596 270 577T226 557Q211 557 198 567T184 600ZM21 287Q21 295 30 318T54 369T98 420T158 442Q197 442 223 419T250 357Q250 340 236 301T196 196T154 83Q149 61 149 51Q149 26 166 26Q175 26 185 29T208 43T235 78T260 137Q263 149 265 151T282 153Q302 153 302 143Q302 135 293 112T268 61T223 11T161 -11Q129 -11 102 10T74 74Q74 91 79 106T122 220Q160 321 166 341T173 380Q173 404 156 404H154Q124 404 99 371T61 287Q60 286 59 284T58 281T56 279T53 278T49 278T41 278H27Q21 284 21 287Z"/></g></g><g data-mml-node="msubsup" transform="translate(4595.1,0)"><g data-mml-node="mi"><path data-c="1D451" d="M366 683Q367 683 438 688T511 694Q523 694 523 686Q523 679 450 384T375 83T374 68Q374 26 402 26Q411 27 422 35Q443 55 463 131Q469 151 473 152Q475 153 483 153H487H491Q506 153 506 145Q506 140 503 129Q490 79 473 48T445 8T417 -8Q409 -10 393 -10Q359 -10 336 5T306 36L300 51Q299 52 296 50Q294 48 292 46Q233 -10 172 -10Q117 -10 75 30T33 157Q33 205 53 255T101 341Q148 398 195 420T280 442Q336 442 364 400Q369 394 369 396Q370 400 396 505T424 616Q424 629 417 632T378 637H357Q351 643 351 645T353 664Q358 683 366 683ZM352 326Q329 405 277 405Q242 405 210 374T160 293Q131 214 119 129Q119 126 119 118T118 106Q118 61 136 44T179 26Q233 26 290 98L298 109L352 326Z"/></g><g data-mml-node="mn" transform="translate(553,363) scale(0.707)"><path data-c="32" d="M109 429Q82 429 66 447T50 491Q50 562 103 614T235 666Q326 666 387 610T449 465Q449 422 429 383T381 315T301 241Q265 210 201 149L142 93L218 92Q375 92 385 97Q392 99 409 186V189H449V186Q448 183 436 95T421 3V0H50V19V31Q50 38 56 46T86 81Q115 113 136 137Q145 147 170 174T204 211T233 244T261 278T284 308T305 340T320 369T333 401T340 431T343 464Q343 527 309 573T212 619Q179 619 154 602T119 569T109 550Q109 549 114 549Q132 549 151 535T170 489Q170 464 154 447T109 429Z"/></g><g data-mml-node="mi" transform="translate(553,-284.4) scale(0.707)"><path data-c="1D456" d="M184 600Q184 624 203 642T247 661Q265 661 277 649T290 619Q290 596 270 577T226 557Q211 557 198 567T184 600ZM21 287Q21 295 30 318T54 369T98 420T158 442Q197 442 223 419T250 357Q250 340 236 301T196 196T154 83Q149 61 149 51Q149 26 166 26Q175 26 185 29T208 43T235 78T260 137Q263 149 265 151T282 153Q302 153 302 143Q302 135 293 112T268 61T223 11T161 -11Q129 -11 102 10T74 74Q74 91 79 106T122 220Q160 321 166 341T173 380Q173 404 156 404H154Q124 404 99 371T61 287Q60 286 59 284T58 281T56 279T53 278T49 278T41 278H27Q21 284 21 287Z"/></g></g><g data-mml-node="mo" transform="translate(5773.9,0)"><path data-c="2212" d="M84 237T84 250T98 270H679Q694 262 694 250T679 230H98Q84 237 84 250Z"/></g><g data-mml-node="mfrac" transform="translate(6774.1,0)"><g data-mml-node="mn" transform="translate(409.7,394) scale(0.707)"><path data-c="31" d="M213 578L200 573Q186 568 160 563T102 556H83V602H102Q149 604 189 617T245 641T273 663Q275 666 285 666Q294 666 302 660V361L303 61Q310 54 315 52T339 48T401 46H427V0H416Q395 3 257 3Q121 3 100 0H88V46H114Q136 46 152 46T177 47T193 50T201 52T207 57T213 61V578Z"/></g><g data-mml-node="msup" transform="translate(220,-377.4) scale(0.707)"><g data-mml-node="mi"><path data-c="1D45B" d="M21 287Q22 293 24 303T36 341T56 388T89 425T135 442Q171 442 195 424T225 390T231 369Q231 367 232 367L243 378Q304 442 382 442Q436 442 469 415T503 336T465 179T427 52Q427 26 444 26Q450 26 453 27Q482 32 505 65T540 145Q542 153 560 153Q580 153 580 145Q580 144 576 130Q568 101 554 73T508 17T439 -10Q392 -10 371 17T350 73Q350 92 386 193T423 345Q423 404 379 404H374Q288 404 229 303L222 291L189 157Q156 26 151 16Q138 -11 108 -11Q95 -11 87 -5T76 7T74 17Q74 30 112 180T152 343Q153 348 153 366Q153 405 129 405Q91 405 66 305Q60 285 60 284Q58 278 41 278H27Q21 284 21 287Z"/></g><g data-mml-node="mn" transform="translate(633,289) scale(0.707)"><path data-c="32" d="M109 429Q82 429 66 447T50 491Q50 562 103 614T235 666Q326 666 387 610T449 465Q449 422 429 383T381 315T301 241Q265 210 201 149L142 93L218 92Q375 92 385 97Q392 99 409 186V189H449V186Q448 183 436 95T421 3V0H50V19V31Q50 38 56 46T86 81Q115 113 136 137Q145 147 170 174T204 211T233 244T261 278T284 308T305 340T320 369T333 401T340 431T343 464Q343 527 309 573T212 619Q179 619 154 602T119 569T109 550Q109 549 114 549Q132 549 151 535T170 489Q170 464 154 447T109 429Z"/></g></g><rect width="933" height="60" x="120" y="220"/></g><g data-mml-node="mo" transform="translate(7947.1,0)"><path data-c="28" d="M94 250Q94 319 104 381T127 488T164 576T202 643T244 695T277 729T302 750H315H319Q333 750 333 741Q333 738 316 720T275 667T226 581T184 443T167 250T184 58T225 -81T274 -167T316 -220T333 -241Q333 -250 318 -250H315H302L274 -226Q180 -141 137 -14T94 250Z"/></g><g data-mml-node="munder" transform="translate(8336.1,0)"><g data-mml-node="mo"><path data-c="2211" d="M61 748Q64 750 489 750H913L954 640Q965 609 976 579T993 533T999 516H979L959 517Q936 579 886 621T777 682Q724 700 655 705T436 710H319Q183 710 183 709Q186 706 348 484T511 259Q517 250 513 244L490 216Q466 188 420 134T330 27L149 -187Q149 -188 362 -188Q388 -188 436 -188T506 -189Q679 -189 778 -162T936 -43Q946 -27 959 6H999L913 -249L489 -250Q65 -250 62 -248Q56 -246 56 -239Q56 -234 118 -161Q186 -81 245 -11L428 206Q428 207 242 462L57 717L56 728Q56 744 61 748Z"/></g><g data-mml-node="mi" transform="translate(1089,-285.4) scale(0.707)"><path data-c="1D456" d="M184 600Q184 624 203 642T247 661Q265 661 277 649T290 619Q290 596 270 577T226 557Q211 557 198 567T184 600ZM21 287Q21 295 30 318T54 369T98 420T158 442Q197 442 223 419T250 357Q250 340 236 301T196 196T154 83Q149 61 149 51Q149 26 166 26Q175 26 185 29T208 43T235 78T260 137Q263 149 265 151T282 153Q302 153 302 143Q302 135 293 112T268 61T223 11T161 -11Q129 -11 102 10T74 74Q74 91 79 106T122 220Q160 321 166 341T173 380Q173 404 156 404H154Q124 404 99 371T61 287Q60 286 59 284T58 281T56 279T53 278T49 278T41 278H27Q21 284 21 287Z"/></g></g><g data-mml-node="msub" transform="translate(9885.7,0)"><g data-mml-node="mi"><path data-c="1D451" d="M366 683Q367 683 438 688T511 694Q523 694 523 686Q523 679 450 384T375 83T374 68Q374 26 402 26Q411 27 422 35Q443 55 463 131Q469 151 473 152Q475 153 483 153H487H491Q506 153 506 145Q506 140 503 129Q490 79 473 48T445 8T417 -8Q409 -10 393 -10Q359 -10 336 5T306 36L300 51Q299 52 296 50Q294 48 292 46Q233 -10 172 -10Q117 -10 75 30T33 157Q33 205 53 255T101 341Q148 398 195 420T280 442Q336 442 364 400Q369 394 369 396Q370 400 396 505T424 616Q424 629 417 632T378 637H357Q351 643 351 645T353 664Q358 683 366 683ZM352 326Q329 405 277 405Q242 405 210 374T160 293Q131 214 119 129Q119 126 119 118T118 106Q118 61 136 44T179 26Q233 26 290 98L298 109L352 326Z"/></g><g data-mml-node="mi" transform="translate(553,-150) scale(0.707)"><path data-c="1D456" d="M184 600Q184 624 203 642T247 661Q265 661 277 649T290 619Q290 596 270 577T226 557Q211 557 198 567T184 600ZM21 287Q21 295 30 318T54 369T98 420T158 442Q197 442 223 419T250 357Q250 340 236 301T196 196T154 83Q149 61 149 51Q149 26 166 26Q175 26 185 29T208 43T235 78T260 137Q263 149 265 151T282 153Q302 153 302 143Q302 135 293 112T268 61T223 11T161 -11Q129 -11 102 10T74 74Q74 91 79 106T122 220Q160 321 166 341T173 380Q173 404 156 404H154Q124 404 99 371T61 287Q60 286 59 284T58 281T56 279T53 278T49 278T41 278H27Q21 284 21 287Z"/></g></g><g data-mml-node="msup" transform="translate(10732.6,0)"><g data-mml-node="mo"><path data-c="29" d="M60 749L64 750Q69 750 74 750H86L114 726Q208 641 251 514T294 250Q294 182 284 119T261 12T224 -76T186 -143T145 -194T113 -227T90 -246Q87 -249 86 -250H74Q66 -250 63 -250T58 -247T55 -238Q56 -237 66 -225Q221 -64 221 250T66 725Q56 737 55 738Q55 746 60 749Z"/></g><g data-mml-node="mn" transform="translate(422,363) scale(0.707)"><path data-c="32" d="M109 429Q82 429 66 447T50 491Q50 562 103 614T235 666Q326 666 387 610T449 465Q449 422 429 383T381 315T301 241Q265 210 201 149L142 93L218 92Q375 92 385 97Q392 99 409 186V189H449V186Q448 183 436 95T421 3V0H50V19V31Q50 38 56 46T86 81Q115 113 136 137Q145 147 170 174T204 211T233 244T261 278T284 308T305 340T320 369T333 401T340 431T343 464Q343 527 309 573T212 619Q179 619 154 602T119 569T109 550Q109 549 114 549Q132 549 151 535T170 489Q170 464 154 447T109 429Z"/></g></g></g></g></svg></mjx-container></span></p>
+<ul>
+<li><strong>第一项 <span class="math inline"><mjx-container class="MathJax" jax="SVG"><svg style="vertical-align: -0.798ex;" xmlns="http://www.w3.org/2000/svg" width="8.002ex" height="2.755ex" role="img" focusable="false" viewbox="0 -864.9 3537.1 1217.7"><g stroke="currentColor" fill="currentColor" stroke-width="0" transform="scale(1,-1)"><g data-mml-node="math"><g data-mml-node="mfrac"><g data-mml-node="mn" transform="translate(255.4,394) scale(0.707)"><path data-c="31" d="M213 578L200 573Q186 568 160 563T102 556H83V602H102Q149 604 189 617T245 641T273 663Q275 666 285 666Q294 666 302 660V361L303 61Q310 54 315 52T339 48T401 46H427V0H416Q395 3 257 3Q121 3 100 0H88V46H114Q136 46 152 46T177 47T193 50T201 52T207 57T213 61V578Z"/></g><g data-mml-node="mi" transform="translate(220,-345) scale(0.707)"><path data-c="1D45B" d="M21 287Q22 293 24 303T36 341T56 388T89 425T135 442Q171 442 195 424T225 390T231 369Q231 367 232 367L243 378Q304 442 382 442Q436 442 469 415T503 336T465 179T427 52Q427 26 444 26Q450 26 453 27Q482 32 505 65T540 145Q542 153 560 153Q580 153 580 145Q580 144 576 130Q568 101 554 73T508 17T439 -10Q392 -10 371 17T350 73Q350 92 386 193T423 345Q423 404 379 404H374Q288 404 229 303L222 291L189 157Q156 26 151 16Q138 -11 108 -11Q95 -11 87 -5T76 7T74 17Q74 30 112 180T152 343Q153 348 153 366Q153 405 129 405Q91 405 66 305Q60 285 60 284Q58 278 41 278H27Q21 284 21 287Z"/></g><rect width="624.3" height="60" x="120" y="220"/></g><g data-mml-node="munder" transform="translate(1030.9,0)"><g data-mml-node="mo"><path data-c="2211" d="M61 748Q64 750 489 750H913L954 640Q965 609 976 579T993 533T999 516H979L959 517Q936 579 886 621T777 682Q724 700 655 705T436 710H319Q183 710 183 709Q186 706 348 484T511 259Q517 250 513 244L490 216Q466 188 420 134T330 27L149 -187Q149 -188 362 -188Q388 -188 436 -188T506 -189Q679 -189 778 -162T936 -43Q946 -27 959 6H999L913 -249L489 -250Q65 -250 62 -248Q56 -246 56 -239Q56 -234 118 -161Q186 -81 245 -11L428 206Q428 207 242 462L57 717L56 728Q56 744 61 748Z"/></g><g data-mml-node="mi" transform="translate(1089,-285.4) scale(0.707)"><path data-c="1D456" d="M184 600Q184 624 203 642T247 661Q265 661 277 649T290 619Q290 596 270 577T226 557Q211 557 198 567T184 600ZM21 287Q21 295 30 318T54 369T98 420T158 442Q197 442 223 419T250 357Q250 340 236 301T196 196T154 83Q149 61 149 51Q149 26 166 26Q175 26 185 29T208 43T235 78T260 137Q263 149 265 151T282 153Q302 153 302 143Q302 135 293 112T268 61T223 11T161 -11Q129 -11 102 10T74 74Q74 91 79 106T122 220Q160 321 166 341T173 380Q173 404 156 404H154Q124 404 99 371T61 287Q60 286 59 284T58 281T56 279T53 278T49 278T41 278H27Q21 284 21 287Z"/></g></g><g data-mml-node="msubsup" transform="translate(2580.5,0)"><g data-mml-node="mi"><path data-c="1D451" d="M366 683Q367 683 438 688T511 694Q523 694 523 686Q523 679 450 384T375 83T374 68Q374 26 402 26Q411 27 422 35Q443 55 463 131Q469 151 473 152Q475 153 483 153H487H491Q506 153 506 145Q506 140 503 129Q490 79 473 48T445 8T417 -8Q409 -10 393 -10Q359 -10 336 5T306 36L300 51Q299 52 296 50Q294 48 292 46Q233 -10 172 -10Q117 -10 75 30T33 157Q33 205 53 255T101 341Q148 398 195 420T280 442Q336 442 364 400Q369 394 369 396Q370 400 396 505T424 616Q424 629 417 632T378 637H357Q351 643 351 645T353 664Q358 683 366 683ZM352 326Q329 405 277 405Q242 405 210 374T160 293Q131 214 119 129Q119 126 119 118T118 106Q118 61 136 44T179 26Q233 26 290 98L298 109L352 326Z"/></g><g data-mml-node="mn" transform="translate(553,363) scale(0.707)"><path data-c="32" d="M109 429Q82 429 66 447T50 491Q50 562 103 614T235 666Q326 666 387 610T449 465Q449 422 429 383T381 315T301 241Q265 210 201 149L142 93L218 92Q375 92 385 97Q392 99 409 186V189H449V186Q448 183 436 95T421 3V0H50V19V31Q50 38 56 46T86 81Q115 113 136 137Q145 147 170 174T204 211T233 244T261 278T284 308T305 340T320 369T333 401T340 431T343 464Q343 527 309 573T212 619Q179 619 154 602T119 569T109 550Q109 549 114 549Q132 549 151 535T170 489Q170 464 154 447T109 429Z"/></g><g data-mml-node="mi" transform="translate(553,-284.4) scale(0.707)"><path data-c="1D456" d="M184 600Q184 624 203 642T247 661Q265 661 277 649T290 619Q290 596 270 577T226 557Q211 557 198 567T184 600ZM21 287Q21 295 30 318T54 369T98 420T158 442Q197 442 223 419T250 357Q250 340 236 301T196 196T154 83Q149 61 149 51Q149 26 166 26Q175 26 185 29T208 43T235 78T260 137Q263 149 265 151T282 153Q302 153 302 143Q302 135 293 112T268 61T223 11T161 -11Q129 -11 102 10T74 74Q74 91 79 106T122 220Q160 321 166 341T173 380Q173 404 156 404H154Q124 404 99 371T61 287Q60 286 59 284T58 281T56 279T53 278T49 278T41 278H27Q21 284 21 287Z"/></g></g></g></g></svg></mjx-container></span>:</strong> 计算每个像素对数差的平方的均值。</li>
+<li><strong>第二项 <span class="math inline"><mjx-container class="MathJax" jax="SVG"><svg style="vertical-align: -0.871ex;" xmlns="http://www.w3.org/2000/svg" width="10.824ex" height="2.828ex" role="img" focusable="false" viewbox="0 -864.9 4784.1 1250.1"><g stroke="currentColor" fill="currentColor" stroke-width="0" transform="scale(1,-1)"><g data-mml-node="math"><g data-mml-node="mfrac"><g data-mml-node="mn" transform="translate(409.7,394) scale(0.707)"><path data-c="31" d="M213 578L200 573Q186 568 160 563T102 556H83V602H102Q149 604 189 617T245 641T273 663Q275 666 285 666Q294 666 302 660V361L303 61Q310 54 315 52T339 48T401 46H427V0H416Q395 3 257 3Q121 3 100 0H88V46H114Q136 46 152 46T177 47T193 50T201 52T207 57T213 61V578Z"/></g><g data-mml-node="msup" transform="translate(220,-377.4) scale(0.707)"><g data-mml-node="mi"><path data-c="1D45B" d="M21 287Q22 293 24 303T36 341T56 388T89 425T135 442Q171 442 195 424T225 390T231 369Q231 367 232 367L243 378Q304 442 382 442Q436 442 469 415T503 336T465 179T427 52Q427 26 444 26Q450 26 453 27Q482 32 505 65T540 145Q542 153 560 153Q580 153 580 145Q580 144 576 130Q568 101 554 73T508 17T439 -10Q392 -10 371 17T350 73Q350 92 386 193T423 345Q423 404 379 404H374Q288 404 229 303L222 291L189 157Q156 26 151 16Q138 -11 108 -11Q95 -11 87 -5T76 7T74 17Q74 30 112 180T152 343Q153 348 153 366Q153 405 129 405Q91 405 66 305Q60 285 60 284Q58 278 41 278H27Q21 284 21 287Z"/></g><g data-mml-node="mn" transform="translate(633,289) scale(0.707)"><path data-c="32" d="M109 429Q82 429 66 447T50 491Q50 562 103 614T235 666Q326 666 387 610T449 465Q449 422 429 383T381 315T301 241Q265 210 201 149L142 93L218 92Q375 92 385 97Q392 99 409 186V189H449V186Q448 183 436 95T421 3V0H50V19V31Q50 38 56 46T86 81Q115 113 136 137Q145 147 170 174T204 211T233 244T261 278T284 308T305 340T320 369T333 401T340 431T343 464Q343 527 309 573T212 619Q179 619 154 602T119 569T109 550Q109 549 114 549Q132 549 151 535T170 489Q170 464 154 447T109 429Z"/></g></g><rect width="933" height="60" x="120" y="220"/></g><g data-mml-node="mo" transform="translate(1173,0)"><path data-c="28" d="M94 250Q94 319 104 381T127 488T164 576T202 643T244 695T277 729T302 750H315H319Q333 750 333 741Q333 738 316 720T275 667T226 581T184 443T167 250T184 58T225 -81T274 -167T316 -220T333 -241Q333 -250 318 -250H315H302L274 -226Q180 -141 137 -14T94 250Z"/></g><g data-mml-node="munder" transform="translate(1562,0)"><g data-mml-node="mo"><path data-c="2211" d="M61 748Q64 750 489 750H913L954 640Q965 609 976 579T993 533T999 516H979L959 517Q936 579 886 621T777 682Q724 700 655 705T436 710H319Q183 710 183 709Q186 706 348 484T511 259Q517 250 513 244L490 216Q466 188 420 134T330 27L149 -187Q149 -188 362 -188Q388 -188 436 -188T506 -189Q679 -189 778 -162T936 -43Q946 -27 959 6H999L913 -249L489 -250Q65 -250 62 -248Q56 -246 56 -239Q56 -234 118 -161Q186 -81 245 -11L428 206Q428 207 242 462L57 717L56 728Q56 744 61 748Z"/></g><g data-mml-node="mi" transform="translate(1089,-285.4) scale(0.707)"><path data-c="1D456" d="M184 600Q184 624 203 642T247 661Q265 661 277 649T290 619Q290 596 270 577T226 557Q211 557 198 567T184 600ZM21 287Q21 295 30 318T54 369T98 420T158 442Q197 442 223 419T250 357Q250 340 236 301T196 196T154 83Q149 61 149 51Q149 26 166 26Q175 26 185 29T208 43T235 78T260 137Q263 149 265 151T282 153Q302 153 302 143Q302 135 293 112T268 61T223 11T161 -11Q129 -11 102 10T74 74Q74 91 79 106T122 220Q160 321 166 341T173 380Q173 404 156 404H154Q124 404 99 371T61 287Q60 286 59 284T58 281T56 279T53 278T49 278T41 278H27Q21 284 21 287Z"/></g></g><g data-mml-node="msub" transform="translate(3111.6,0)"><g data-mml-node="mi"><path data-c="1D451" d="M366 683Q367 683 438 688T511 694Q523 694 523 686Q523 679 450 384T375 83T374 68Q374 26 402 26Q411 27 422 35Q443 55 463 131Q469 151 473 152Q475 153 483 153H487H491Q506 153 506 145Q506 140 503 129Q490 79 473 48T445 8T417 -8Q409 -10 393 -10Q359 -10 336 5T306 36L300 51Q299 52 296 50Q294 48 292 46Q233 -10 172 -10Q117 -10 75 30T33 157Q33 205 53 255T101 341Q148 398 195 420T280 442Q336 442 364 400Q369 394 369 396Q370 400 396 505T424 616Q424 629 417 632T378 637H357Q351 643 351 645T353 664Q358 683 366 683ZM352 326Q329 405 277 405Q242 405 210 374T160 293Q131 214 119 129Q119 126 119 118T118 106Q118 61 136 44T179 26Q233 26 290 98L298 109L352 326Z"/></g><g data-mml-node="mi" transform="translate(553,-150) scale(0.707)"><path data-c="1D456" d="M184 600Q184 624 203 642T247 661Q265 661 277 649T290 619Q290 596 270 577T226 557Q211 557 198 567T184 600ZM21 287Q21 295 30 318T54 369T98 420T158 442Q197 442 223 419T250 357Q250 340 236 301T196 196T154 83Q149 61 149 51Q149 26 166 26Q175 26 185 29T208 43T235 78T260 137Q263 149 265 151T282 153Q302 153 302 143Q302 135 293 112T268 61T223 11T161 -11Q129 -11 102 10T74 74Q74 91 79 106T122 220Q160 321 166 341T173 380Q173 404 156 404H154Q124 404 99 371T61 287Q60 286 59 284T58 281T56 279T53 278T49 278T41 278H27Q21 284 21 287Z"/></g></g><g data-mml-node="msup" transform="translate(3958.5,0)"><g data-mml-node="mo"><path data-c="29" d="M60 749L64 750Q69 750 74 750H86L114 726Q208 641 251 514T294 250Q294 182 284 119T261 12T224 -76T186 -143T145 -194T113 -227T90 -246Q87 -249 86 -250H74Q66 -250 63 -250T58 -247T55 -238Q56 -237 66 -225Q221 -64 221 250T66 725Q56 737 55 738Q55 746 60 749Z"/></g><g data-mml-node="mn" transform="translate(422,363) scale(0.707)"><path data-c="32" d="M109 429Q82 429 66 447T50 491Q50 562 103 614T235 666Q326 666 387 610T449 465Q449 422 429 383T381 315T301 241Q265 210 201 149L142 93L218 92Q375 92 385 97Q392 99 409 186V189H449V186Q448 183 436 95T421 3V0H50V19V31Q50 38 56 46T86 81Q115 113 136 137Q145 147 170 174T204 211T233 244T261 278T284 308T305 340T320 369T333 401T340 431T343 464Q343 527 309 573T212 619Q179 619 154 602T119 569T109 550Q109 549 114 549Q132 549 151 535T170 489Q170 464 154 447T109 429Z"/></g></g></g></g></svg></mjx-container></span>:</strong> 计算所有像素对数差的均值的平方。</li>
+<li><strong>为什么相减？</strong>
+==如果预测完全正确（只差一个尺度因子<code>s</code>），那么所有<code>d_i</code>都等于常数<code>-log(s)</code>。此时，第一项等于<span class="math inline">(−<em>l</em><em>o</em><em>g</em>(<em>s</em>))<sup>2</sup></span>，第二项也等于<span class="math inline">(−<em>l</em><em>o</em><em>g</em>(<em>s</em>))<sup>2</sup></span>，两者相减损失为0！这就完美地消除了尺度因子的影响。只有当不同像素的相对深度关系出错时（即<code>d_i</code>不全相等），损失才会大于0。==</li>
+<li><strong>这篇论文的<code>SIRLoss</code> (公式5)
+正是这个公式！</strong>
+只不过它在计算<code>d_i</code>时，对真实标签<code>y*</code>做了一个“翻新”操作，但核心的尺度不变思想是一致的。</li>
+</ul></li>
+</ul>
+<h4 id="预测值对齐-aligning-prediction-with-ground-truth">2. 预测值对齐
+(Aligning Prediction with Ground Truth)</h4>
+<p>另一种思路是，==在计算损失前，先计算出那个最佳的缩放因子<code>s</code>，把预测值<code>y_pred</code>乘以<code>s</code>对齐到真实值<code>y_gt</code>的尺度上，然后再计算误差。==</p>
+<ul>
+<li><strong>方法：</strong>
+通常使用最小二乘法来求解最佳的<code>s</code>和<code>t</code>（平移因子，有时也考虑），==使得<code>s * y_pred + t</code>与<code>y_gt</code>的误差最小==。</li>
+<li><strong>求解：</strong>
+这个问题有一个闭式解。最常见的做法是只求解<code>s</code>，即找到<code>s</code>使得
+<span class="math inline">∑<sub><em>i</em></sub>(<em>y</em><sub><em>g</em><em>t</em>_<em>i</em></sub> − <em>s</em> ⋅ <em>y</em><sub><em>p</em><em>r</em><em>e</em><em>d</em>_<em>i</em></sub>)<sup>2</sup></span>最小。解是
+<code>s = median(y_gt / y_pred)</code>（使用中位数比均值更鲁棒）。</li>
+<li><strong>计算损失：</strong> 得到<code>s</code>后，计算对齐后的预测值
+<span class="math inline"><em>ŷ</em><sub><em>p</em><em>r</em><em>e</em><em>d</em></sub> = <em>s</em> ⋅ <em>y</em><sub><em>p</em><em>r</em><em>e</em><em>d</em></sub></span>，然后用传统的损失函数计算
+<span class="math inline"><em>L</em>(<em>y</em><sub><em>g</em><em>t</em></sub>, <em>ŷ</em><sub><em>p</em><em>r</em><em>e</em><em>d</em></sub>)</span>。</li>
+</ul>
+<h4 id="比较梯度或法线-comparing-gradients-or-normals">3. 比较梯度或法线
+(Comparing Gradients or Normals)</h4>
+<p>这种方法==更加关注几何结构。它认为深度的绝对值不重要，但深度的<strong>变化趋势</strong>（即表面的朝向）很重要。==(好像前面的方差)</p>
+<ul>
+<li><strong>做法：</strong>
+不直接比较深度图<code>y</code>，而是==先计算出深度图的<strong>梯度</strong>（一阶导数）或<strong>法线向量</strong>（由一阶和二阶导数计算得到）。然后，比较预测的梯度/法线和真实的梯度/法线之间的差异（比如角度差或L2距离）==。</li>
+<li><strong>好处：</strong>
+<strong>梯度和法线天然地对全局的尺度和平移不敏感，它们只描述表面的局部几何形状。这使得模型更专注于学习场景的精细结构。</strong></li>
+</ul>
+<h3 id="总结-1">总结</h3>
+<p>“尺度不变的误差度量”是为了解决单目深度估计中固有的尺度模糊性问题而设计的。其核心思想是<strong>避免直接比较预测值和真实值的绝对大小，转而比较它们的相对关系</strong>。</p>
+<p>主流方法包括：</p>
+<ol type="1">
+<li><strong>在对数空间中计算误差（如本文的SIRLoss）：</strong>
+这是最流行和有效的方法之一，通过巧妙的数学形式消除了尺度因子的影响。</li>
+<li><strong>先对齐尺度再计算误差：</strong>
+通过求解一个缩放因子，将预测值拉到和真实值同一个“量纲”下。</li>
+<li><strong>比较高阶信息（如梯度和法线）：</strong>
+忽略绝对深度，专注于表面朝向和几何结构的一致性。</li>
+</ol>
+<p>==<strong>这些方法使得模型可以专注于学习场景的正确三维结构，而不会被无法确定的绝对尺度问题所困扰，从而大大提升了训练的稳定性和最终的预测质量。</strong>==</p>
+<h3 id="对真实标签y的翻新refurbishment操作">对真实标签<code>y*</code>的“翻新(Refurbishment)”操作。</h3>
+<p>这个操作出现在公式(5)的定义中： <span class="math inline"><em>Δ</em><em>d</em><sub><em>i</em></sub> = log (<em>y</em><sub><em>i</em></sub>) − log (<em>α</em><em>y</em><sub><em>i</em></sub><sup>*</sup> + (1 − <em>α</em>)<em>y</em><sub><em>i</em></sub>)</span></p>
+<p>这里的<span class="math inline"><em>y</em><sub><em>i</em></sub></span>是模型在第<code>i</code>个像素的<strong>深度预测值</strong>，而<span class="math inline"><em>y</em><sub><em>i</em></sub><sup>*</sup></span>是对应的<strong>伪真值标签
+(pseudo ground-truth label)</strong>。</p>
+<p>“翻新”操作指的就是这个部分：<span class="math inline"><em>α</em><em>y</em><sub><em>i</em></sub><sup>*</sup> + (1 − <em>α</em>)<em>y</em><sub><em>i</em></sub></span>。</p>
+<p>让我们来剖析一下这背后的动机和具体做法。</p>
+<h3 id="动机为什么需要翻新">1. 动机：为什么需要“翻新”？</h3>
+<p>在本文的设定中，深度图并不是由昂贵的LiDAR设备或人工精确标注得到的，而是通过一个<strong>预训练好的深度估计模型</strong>对清晰图像进行预测而生成的。我们称这种标签为<strong>“伪真值
+(Pseudo-label)”</strong>。</p>
+<p>这就带来了一个严重的问题：<strong>伪真值标签<span class="math inline"><em>y</em><sup>*</sup></span>本身就可能是不准确的，含有噪声！</strong></p>
+<p>如果我们的损失函数强行让模型的预测值<code>y</code>去完美拟合一个有噪声的标签<span class="math inline"><em>y</em><sup>*</sup></span>，会发生什么？</p>
+<ul>
+<li>==<strong>过拟合噪声：</strong>
+模型会把噪声也当成知识来学习，导致其泛化能力下降。==</li>
+<li>==<strong>训练不稳定：</strong> 如果标签<span class="math inline"><em>y</em><sup>*</sup></span>在某些区域错得离谱，可能会导致梯度爆炸或训练过程振荡。==</li>
+</ul>
+<p>因此，作者需要一种机制来<strong>减轻对这些不可靠伪标签的过度依赖</strong>。这就是“翻新”操作的用武之地。</p>
+<h3 id="翻新操作是怎么做的">2. “翻新”操作是怎么做的？</h3>
+<p>这个操作本质上是一种==<strong>动态的、加权的标签平滑 (Label
+Smoothing) 或 知识蒸馏 (Knowledge Distillation) 的变体</strong>==。</p>
+<p>我们来看这个“翻新”后的新标签 <span class="math inline"><em>ŷ</em><sub><em>i</em></sub><sup>*</sup> = <em>α</em><em>y</em><sub><em>i</em></sub><sup>*</sup> + (1 − <em>α</em>)<em>y</em><sub><em>i</em></sub></span>。</p>
+<ul>
+<li><strong><span class="math inline"><em>y</em><sub><em>i</em></sub><sup>*</sup></span>
+(伪真值标签):</strong>
+这是从一个外部“老师”模型那里得到的知识，代表了我们希望模型学习的<strong>目标方向</strong>。</li>
+<li><strong><span class="math inline"><em>y</em><sub><em>i</em></sub></span>
+(模型当前预测):</strong>
+这是模型自己“学生”在当前训练阶段学到的知识，代表了模型<strong>当前的理解</strong>。</li>
+<li><strong><span class="math inline"><em>α</em></span>
+(置信度因子):</strong>
+这是一个超参数（论文中设为0.7），它控制着==<strong>我们对“老师”的信任程度</strong>==。</li>
+</ul>
+<p><strong>这个公式的含义是：</strong>
+==我不再强迫学生（y）去100%模仿老师（<span class="math inline"><em>y</em><sup>*</sup></span>），而是让他去逼近一个<strong>由“老师的指导”和“学生自己的当前理解”混合而成的新目标</strong>。==</p>
+<ul>
+<li>当<span class="math inline"><em>α</em> = 1</span>时，<span class="math inline"><em>ŷ</em><sub><em>i</em></sub><sup>*</sup> = <em>y</em><sub><em>i</em></sub><sup>*</sup></span>，就退化成了传统的监督学习，完全信任标签。</li>
+<li>当<span class="math inline"><em>α</em> = 0</span>时，<span class="math inline"><em>ŷ</em><sub><em>i</em></sub><sup>*</sup> = <em>y</em><sub><em>i</em></sub></span>，模型的目标是自己等于自己，损失恒为0，学不到任何东西。</li>
+<li>当<span class="math inline">0 &lt; <em>α</em> &lt; 1</span>时（比如0.7），新的目标是70%的“老师指导”加上30%的“学生当前理解”。</li>
+</ul>
+<h3 id="翻新带来的好处">3. “翻新”带来的好处</h3>
+<p>这种做法非常巧妙，它带来了几个关键的好处：</p>
+<ol type="1">
+<li><strong>容忍标签噪声 (Noise Tolerance):</strong>
+==如果某个位置的伪标签<span class="math inline"><em>y</em><sub><em>i</em></sub><sup>*</sup></span>错得离谱，而模型当前的预测<span class="math inline"><em>y</em><sub><em>i</em></sub></span>相对合理，那么这个加权平均<span class="math inline"><em>ŷ</em><sub><em>i</em></sub><sup>*</sup></span>会将错误的标签向合理的方向“拉”回来一点。这相当于对错误的标签信号做了一次<strong>平滑和修正</strong>，防止了模型被单个离谱的标签带偏。==</li>
+<li><strong>稳定训练过程 (Stabilizing Training):</strong>
+这种方式可以看作是一种“软化”的目标。==<strong>让模型去拟合一个与自身当前状态部分相关的目标，会比拟合一个完全外部且可能不稳定的目标要更容易，有助于平滑梯度，让训练过程更加稳定。这在知识蒸馏领域被称为“自蒸馏”，即学生也向自己学习，可以防止模型遗忘已经学到的知识。</strong>==</li>
+<li><strong>正则化效果 (Regularization):</strong>
+这种标签平滑技术本身就是一种有效的正则化手段，<strong>可以防止模型对训练数据（在这里是伪标签）过拟合，提高其在真实未见数据上的泛化能力。</strong></li>
+</ol>
+<h3 id="总结-2">总结</h3>
+<p>对真实标签<code>y*</code>的“翻新”操作，是一个<strong>针对“伪标签不可靠”这一痛点而设计的、非常精巧的鲁棒学习策略</strong>。</p>
+<p>它的核心做法是：<strong>不把伪标签<span class="math inline"><em>y</em><sup>*</sup></span>当作绝对的“真理”，而是将其与模型自身的当前预测<code>y</code>进行加权平均，形成一个更平滑、更可靠的“软目标”<span class="math inline"><em>ŷ</em><sup>*</sup></span>。</strong></p>
+<p>通过这种方式，<code>SIRLoss</code>不仅实现了尺度不变性，还通过标签翻新，有效地<strong>减轻了噪声伪标签对训练过程的负面影响</strong>，使得模型能够从不完美的数据中更稳定、更鲁棒地学习到有用的深度信息。</p>
+<p>“尺度不变”这个术语确实不是它字面上的意思，它<strong>不是说“模型的输出尺度不会变化”</strong>，更不是说“它对所有尺度的物体都能一视同仁地检测”。</p>
+<p>我们来精确地剖析一下“尺度不变
+(Scale-Invariant)”在这里的真正含义和适用范围。</p>
+<h3 id="尺度不变到底是对什么尺度不变">1.
+“尺度不变”到底是对什么“尺度”不变？</h3>
+<p>它特指<strong>深度图的全局尺度 (Global Scale of the Depth
+Map)</strong>。</p>
+<p>请记住这个关键场景：模型通过一张2D图片，预测出一个3D场景的深度图。</p>
+<ul>
+<li><strong>真实世界</strong>的深度是有单位的，比如“米”。</li>
+<li><strong>模型预测</strong>的深度图，其输出值可能只是一个相对大小，没有单位。</li>
+</ul>
+<p>“尺度不变”的意思是：==<strong>只要你预测的深度图和真实的深度图之间，仅仅差一个全局的、统一的缩放比例，那么我们的误差就应该为零。</strong>==</p>
+<p><strong>举个例子：</strong></p>
+<ul>
+<li><strong>真实深度 (Ground Truth):</strong> A点是5米，B点是10米。</li>
+<li><strong>预测深度 A:</strong> A点是50，B点是100。</li>
+<li><strong>预测深度 B:</strong> A点是2.5，B点是5。</li>
+<li><strong>预测深度 C (错误):</strong> A点是50，B点是80。</li>
+</ul>
+<p>在这个例子中：</p>
+<ul>
+<li><strong>预测A</strong> 和真实值之间差了一个全局缩放因子
+<code>s=10</code>。</li>
+<li><strong>预测B</strong> 和真实值之间差了一个全局缩放因子
+<code>s=0.5</code>。</li>
+<li><strong>预测C</strong>
+和真实值之间<strong>不存在</strong>一个统一的缩放因子（<code>80/10 ≠ 50/5</code>）。</li>
+</ul>
+<p>==一个<strong>尺度不变</strong>的误差函数会认为：==</p>
+<ul>
+<li>==<strong>预测A和预测B都是完美的，误差为0。</strong>
+因为它们都正确地反映了“B点的深度是A点的2倍”这个<strong>相对几何结构</strong>。==</li>
+<li>==<strong>预测C是错误的，误差大于0。</strong>
+因为它错误地反映了相对几何结构（预测B是A的1.6倍深）。==</li>
+</ul>
+<p>所以，这个“尺度”指的是<strong>深度值的绝对量纲</strong>，而“不变”指的是<strong>损失函数对这个量纲不敏感</strong>。</p>
+<h3 id="它与目标检测中的尺度不变性有何不同">2.
+它与目标检测中的“尺度不变性”有何不同？</h3>
+<p>这是一个非常容易混淆的点。在目标检测领域，我们通常说的“尺度不变性
+(Scale Invariance)”指的是另一回事：</p>
+<p><strong>无论一个物体（比如车）在图像中因为距离远近而显得“大”或“小”（即占据的像素尺寸不同），模型都应该能准确地检测到它。</strong></p>
+<p>这是关于<strong>物体在2D图像上的表观尺寸 (Apparent Size)</strong>
+的不变性。实现这种不变性，通常靠的是<strong>特征金字塔网络
+(FPN)</strong>、多尺度训练、或者专门设计的感受野模块等技术。</p>
+<h3 id="总结两个尺度不变的精确含义">总结：两个“尺度不变”的精确含义</h3>
+<p>为了避免混淆，我们可以这样来理解：</p>
+<ol type="1">
+<li><strong>本文SIRLoss中的“尺度不变” (Scale-Invariant in Depth
+Estimation):</strong>
+<ul>
+<li><strong>对象：</strong> 深度图的<strong>全局数值尺度</strong>。</li>
+<li><strong>含义：</strong>
+损失函数忽略深度值的绝对大小，只关注<strong>场景三维结构的相对比例</strong>是否正确。</li>
+<li><strong>目的：</strong>
+解决单目深度估计中固有的<strong>尺度模糊性</strong>问题。</li>
+<li><strong>可以理解为：“量纲不变性”或“比例不变性”。</strong></li>
+</ul></li>
+<li><strong>目标检测中常说的“尺度不变” (Scale-Invariant in Object
+Detection):</strong>
+<ul>
+<li><strong>对象：</strong>
+目标在<strong>2D图像上的像素尺寸</strong>。</li>
+<li><strong>含义：</strong>
+模型对物体因距离不同而产生的大小变化具有鲁棒性。</li>
+<li><strong>目的：</strong>
+解决<strong>多尺度目标检测</strong>问题。</li>
+<li><strong>可以理解为：“尺寸不变性”或“大小不变性”。</strong></li>
+</ul></li>
+</ol>
+<h2 id="问题-1">问题：</h2>
+<figure>
+<img src="/images/image-20250626204258773.png" alt="image-20250626204258773">
+<figcaption aria-hidden="true">image-20250626204258773</figcaption>
+</figure>
+<p><strong>第一行显示透视和场景几何形状导致背景遮挡，扭曲目标特征；即使深度集成，雾中的严重遮挡也会导致错过检测。</strong></p>
+<p><strong>第二行显示，无人机的高处视点会缩小目标，使雾中的细微特征无法辨别，从而导致检测失败。</strong></p>
+<p><strong>第三行显示雾的散射会导致褪色和模糊，扭曲关键特征并触发误报。</strong></p>
+<h2 id="总结-3">总结：</h2>
+<p>1、<strong>==模拟数据和真实数据之间的固有分布差异仍然存在，可能会影响模型在现实世界场景中的性能==</strong>。在未来的工作中，我们<strong>旨在探索更有效的模拟方法，并将其应用扩展到更广泛的场景——例如==运动模糊和弱光条件==</strong>，以及<strong>==额外的下游任务==</strong>。</p>
+<p>2、此外，<strong>本文提出了一种实用且有效的方法，该方法利用深度信息作为检测任务的辅助工具</strong>。尽管如此，<strong>当前方法的性能受到伪深度标签准确性的限制</strong>。<strong>==未来的努力将集中在整合更精确的深度数据和设计专用的网络架构，以增强无人机在恶劣天气条件下的目标检测==</strong>。</p>
+<h2 id="实验">实验</h2>
+<h3 id="设置">设置</h3>
+<p>DeCoDet架构采用VFNet，以ImageNet预训练的ResNet-50主干作为基线。</p>
+<p>在训练期间，应用随机水平翻转（50%概率）并将输入归一化为1333×800的分辨率。该网络通过随机梯度下降（SGD）在12个epoch内进行优化，初始学习率为0.02（恒定预热，然后在第8和11个时期减少10倍）</p>
+<hr>
+<p><strong>1、预热
+(Warmup)</strong>：在训练刚开始的阶段，不直接使用设定的较大学习率，而是从一个非常小的学习率开始，经过一段时间（比如第一个epoch），逐渐线性增加到预设的学习率。</p>
+<p><strong>目的</strong>：模型在训练之初，权重是随机的，非常不稳定。如果一开始就用大学习率，可能会导致训练“爆炸”或剧烈震荡。通过“预热”，可以让模型先平稳地适应数据，找到一个大致正确的方向。</p>
+<p><strong>2、正常训练</strong>：预热结束后，模型在预设的学习率下进行稳定训练。</p>
+<p><strong>3、学习率衰减
+(Reductions)</strong>：为了在训练后期让模型收敛得更好、更精细，会在特定阶段降低学习率。</p>
+<p>在第8个训练周期 (epoch 8) 结束时，学习率降低为原来的 <strong>十分之一
+(10× reduction)</strong>。</p>
+<p>在第11个训练周期 (epoch 11)
+结束时，学习率<strong>再次</strong>降低为当时的十分之一。</p>
+<p>所以，整个策略就是：<strong>先“预热”起步，然后全速前进，最后在关键节点“降速”，进行精细微调。</strong></p>
+<hr>
+<p>批量大小为2，动量为0.938，权重衰减为0.0001。所有实验均在NVIDIA RTX
+3090 GPU上使用PyTorch 2.0进行。</p>
+<p>在算法1中，γ指定为0.1，k设置为3。检测精度通过平均精度（mAP）和平均精度（AP）来衡量，而效率通过千兆浮点运算（GFLOPs）、模型参数和每秒帧数（FPS）来衡量。</p>
+<p>此外，为了评估去雾方法的性能，我们采用了两个广泛认可的图像恢复指标：峰值信噪比（PSNR）和结构相似度指数测量（SSIM）。</p>
+<h3 id="基线">基线：</h3>
+<p><strong>Benchmark</strong> 或 <strong>Baseline</strong>
+指的是一个<strong>“参照物”</strong>或<strong>“比较标准”</strong>。它的核心作用是提供一个衡量标杆，用来<strong>证明作者提出的新方法（Proposed
+Method）究竟有多好</strong>。通过与这些基准/基线模型的性能对比（比如在同一个标准数据集上，使用同一个评价指标），来科学、客观地展示新方法的创新价值和实际贡献。</p>
+<h4 id="检测">检测</h4>
+<figure>
+<img src="/images/image-20250908160546899.png" alt="image-20250908160546899">
+<figcaption aria-hidden="true">image-20250908160546899</figcaption>
+</figure>
+<p>模拟和真实环境之间一致的性能趋势验证了我们的数据集。我们的DeCoDet方法优于所有竞争对手，模型在模拟数据上实现52.0%的mAP，在真实数据上实现38.7%，同时保持更高的速度（59.7
+FPS）和效率（34.62M参数），使其成为在具有挑战性的雾天环境中部署的理想选择。</p>
+<h4 id="去雾">去雾</h4>
+<p>去雾基准在HazyDet上对几种去雾模型进行了系统评估。采用Faster RCNN（Ren
+et
+al，2017）作为基线检测器，专门针对清晰的无人机图像进行训练。在测试期间，模糊图像在被送入检测器之前首先进行去雾，并针对相应的清晰参考图像计算画质度量，包括SSIM和PSNR。</p>
+<figure>
+<img src="/images/image-20250908160734441.png" alt="image-20250908160734441">
+<figcaption aria-hidden="true">image-20250908160734441</figcaption>
+</figure>
+<p>大多数去雾模型只能在画质方面产生边际改进，并且经常无法增强，甚至可能降低检测精度，特别是在真实世界数据上。这种限制可能归因于对无人机视角的适应不足。只有少数模型，如RIDCP，在检测性能方面取得了显着的进步。</p>
+<p><strong>此外，更高的PSNR和SSIM分数的模型检测精度并不一定高，突出了恢复质量和检测性能之间的复杂关系。</strong>即使是性能最好的去雾模型也无法与直接在朦胧图像上训练的探测器的精度相匹配，<strong>强调了特定领域训练对于朦胧环境中无人机检测的重要性</strong>。</p>
+<h4 id="消融实验">消融实验</h4>
+<figure>
+<img src="/images/image-20250908161002838.png" alt="image-20250908161002838">
+<figcaption aria-hidden="true">image-20250908161002838</figcaption>
+</figure>
+<p>引入多尺度深度先验给出了VFNet适度的改进（在测试集上+0.3%mAP，在真实数据上+0.2%）。</p>
+<p>DCK和MSDP的组合产生了显著的增益（+0.8%测试，+1.1%真实），而SIRLoss只提供了有限的提高（+0.2%测试，+0.1%真实）。完整的模型，集成所有组件，达到了最好的结果（在测试集上52.0%mAP，在真实数据上38.0%），表明它们的互补效果。</p>
+<p>参数优化的实验结果表明：</p>
+<p>1、在检测头中使用 <strong>3 层</strong> (<code>M=3</code>)
+我们设计的深度卷积层，效果最好。如果层数少于3层，可能效果不够好。如果层数多于3层，可能效果提升不明显，但计算量会显著增加，导致模型变慢。</p>
+<p>2、我们那个根据深度动态生成的卷积核（DCK），其最佳配置是 <strong>7x7
+的卷积核大小</strong> 和 <strong>16 个分组 (groups)</strong>。</p>
+<p>因为 7x7
+的大小足够大，可以<strong>捕捉到充足的上下文信息</strong>（帮助模型更好地理解像素周围的环境），但又不会太大以至于<strong>引入无关的噪声</strong>（范围太大可能会看到不相关的东西）。</p>
+<p>作为对比，如果用 <strong>3x3
+的小卷积核</strong>，性能会<strong>大幅下降</strong>（在测试集上分别下降9.1%和6.8%）。而如果分组数太多（excessive
+grouping），带来的<strong>性能提升微乎其微</strong>，但计算成本却更高，不划算。</p>
+<p>在总的损失函数中，我们为深度损失（SIRLoss）分配的<strong>最佳权重是 β
+= 0.2</strong>。这个权重 <code>β</code>
+决定了模型在训练时有多“在乎”深度信息的学习。如果权重<strong>太低 (β =
+0.05)</strong>：模型对深度信息的学习不够，导致<strong>欠拟合
+(underfitting)</strong>，性能在测试集上分别下降3.8%和3.1%。如果权重<strong>太高
+(β =
+1.0)</strong>：模型可能过于关注深度估计这个辅助任务，反而干扰了主体的目标检测任务，同样导致<strong>性能下降</strong>。</p>
+<h4 id="特征图可视化和鲁棒性分析">特征图可视化和鲁棒性分析</h4>
+<figure>
+<img src="/images/image-20250908161537478.png" alt="image-20250908161537478">
+<figcaption aria-hidden="true">image-20250908161537478</figcaption>
+</figure>
+<p>图5（a）比较了雾条件下基线和DeCoDet之间的骨干特征热图。DeCoDet精确识别潜在目标区域，更有效地集中网络注意力。这种有针对性的焦点提高了检测精度。通过结合深度信息，DeCoDet增强了特征识别，同时减少了雾霾干扰，在恶劣天气下展示了稳健的性能。</p>
+<p>图5（b）揭示了DeCoDet学习的深度信息。传统的深度估计产生平滑的输出，但错过了小目标。DeCoDet在高水平上调整全局深度，同时强调局部检测线索，提高对微小、烟雾模糊物体的敏感性，并改善低能见度下的检测。</p>
+<p>通过向训练深度图添加不同级别的高斯噪声来评估DeCoDet的鲁棒性。如图5（c）所示，网络性能随着噪声的增加而下降，尤其是在更高级别。这些结果突出了高质量深度标签对于学习准确深度线索和稳定训练的重要性，表明增强深度估计精度对于未来的性能改进至关重要。</p>
+<h5 id="消融实验-补充">消融实验-补充</h5>
+<h5 id="损失函数的有效性">损失函数的有效性。</h5>
+<figure>
+<img src="/images/image-20250908163937288.png" alt="image-20250908163937288">
+<figcaption aria-hidden="true">image-20250908163937288</figcaption>
+</figure>
+<p>传统的损失函数，如SmoothL1和MSE关注绝对差异，使它们容易受到伪标签中噪声的影响，从而限制了深度线索的利用。相比之下，SIRLoss保持尺度不变性，增强标签翻新，产生更好的mAP分数。</p>
+<h5 id="深度图的有效性">深度图的有效性</h5>
+<p>评估各种估计模型生成的深度图对DeCoDet性能的影响。</p>
+<figure>
+<img src="/images/image-20250908163943840.png" alt="image-20250908163943840">
+<figcaption aria-hidden="true">image-20250908163943840</figcaption>
+</figure>
+<p>Metric3D的预测取得了卓越的结果，这归因于其在新环境中卓越的深度估计精度和泛化能力。这些结果强调了精确深度图对于增强检测能力的关键必要性。</p>
+<h5 id="pdft的有效性">PDFT的有效性</h5>
+<figure>
+<img src="/images/image-20250908164124992.png" alt="image-20250908164124992">
+<figcaption aria-hidden="true">image-20250908164124992</figcaption>
+</figure>
+<p>评估不同微调策略对真实世界雾霾场景中模型性能的影响。然而，对真实世界数据的直接微调，由于显着的语义和尺度差异，始终会遇到严重的域偏移和过拟合，导致所有模型的性能都不理想。</p>
+<p>相比之下，对模拟数据的微调产生了显著的改进，这表明模拟数据集为雾霾条件下的无人机目标检测提供了有益的语义特征，并且具有足够的规模来减轻过拟合。基于这一观察，我们提出的PDFT方法利用模拟数据作为桥接域，有效地缓解了这些挑战。因此，我们的方法在所有评估模型中始终提供性能提升。</p>
+
+    </div>
+    
+    
+    
+    
+    
+    
+    
+</div>
+
+            <footer id="footer">
+    <div id="footer-wrap">
+        <div>
+            &copy;
+            2022 - 2026 NWPU-ZAK
+            <span id="footer-icon">
+                <i class="fa-solid fa-font-awesome fa-fw"></i>
+            </span>
+            &commat;Zang Ankang
+        </div>
+        <div>
+            Based on the <a target="_blank" rel="noopener" href="https://hexo.io">Hexo Engine</a> &amp;
+            <a target="_blank" rel="noopener" href="https://github.com/theme-particlex/hexo-theme-particlex">ParticleX Theme</a>
+        </div>
+        
+    </div>
+</footer>
+
+        </div>
+        
+        <transition name="fade">
+            <div id="preview" ref="preview" v-show="previewShow">
+                <img id="preview-content" ref="previewContent" />
+            </div>
+        </transition>
+        
+    </div>
+    <script src="/js/main.js"></script>
+    
+    
+
+
+
+
+    
+</body>
+</html>
